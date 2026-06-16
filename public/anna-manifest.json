@@ -1,0 +1,9 @@
+{
+  "name": "KeyGuard AI",
+  "description": "API Key Health & Usage Assistant",
+  "permissions": {
+    "storage": true,
+    "llm": true,
+    "chat": true
+  }
+}
