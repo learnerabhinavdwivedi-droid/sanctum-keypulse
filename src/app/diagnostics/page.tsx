@@ -24,7 +24,7 @@ export default function DiagnosticsPage() {
 
   return (
     <>
-      <DashboardLayout identity={identity}>
+      <DashboardLayout>
         <div className="max-w-4xl mx-auto h-[600px]">
           <DiagnosticHub keys={keys} />
         </div>

@@ -1,15 +1,10 @@
-import { useState } from 'react';
-import { KeyRecord } from './useKeyManager';
+import { useState, useRef } from 'react';
+import { annaBridge } from '../lib/annaBridge';
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'ai' | 'tool_call';
+  role: 'user' | 'ai';
   text: string;
-  toolCall?: {
-    id: string;
-    name: string;
-    input: unknown;
-  };
 }
 
 export const useChatAssistant = () => {
@@ -21,88 +16,51 @@ export const useChatAssistant = () => {
       text: 'Welcome to KeyPulse. I am Anna, your AI assistant.'
     }
   ]);
+  const sessionIdRef = useRef<string | null>(null);
 
-  const sendPayloadToBackend = async (payloadMessage: string | null, toolResult: unknown = null) => {
+  const ensureSession = async () => {
+    if (!sessionIdRef.current) {
+      sessionIdRef.current = await annaBridge.agent.start({ context: 'KeyPulse SOC assistant' });
+    }
+    return sessionIdRef.current;
+  };
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    setChatHistory(prev => [...prev, {
+      id: Math.random().toString(36).substring(2, 9),
+      role: 'user',
+      text
+    }]);
+
     setIsTyping(true);
-
     try {
-      const payloadHistory = chatHistory.map(msg => {
-        if (msg.role === 'tool_call' && msg.toolCall) {
-          return {
-            role: 'assistant',
-            content: [
-              {
-                type: 'tool_use',
-                id: msg.toolCall.id,
-                name: msg.toolCall.name,
-                input: msg.toolCall.input
-              }
-            ]
-          };
-        }
-        return {
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.text
-        };
-      });
-
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: payloadMessage, history: payloadHistory, toolResult })
-      });
-
-      if (!res.ok) throw new Error('Network response was not ok');
-
-      const data = await res.json();
-
-      if (data.message) {
-        setChatHistory(prev => [...prev, {
-          id: Math.random().toString(36).substring(2, 9),
-          role: 'ai',
-          text: data.message
-        }]);
-      }
-
-      if (data.toolCall) {
-        setChatHistory(prev => [...prev, {
-          id: Math.random().toString(36).substring(2, 9),
-          role: 'tool_call',
-          text: '',
-          toolCall: data.toolCall
-        }]);
-      }
+      const sid = await ensureSession();
+      const response = await annaBridge.agent.sendMessage(sid, text);
+      setChatHistory(prev => [...prev, {
+        id: Math.random().toString(36).substring(2, 9),
+        role: 'ai',
+        text: response
+      }]);
     } catch {
       setChatHistory(prev => [...prev, {
         id: Math.random().toString(36).substring(2, 9),
         role: 'ai',
-        text: "Error: Unable to process request through AI Engine."
+        text: 'Error: Unable to process request through AI Engine.'
       }]);
     } finally {
       setIsTyping(false);
     }
   };
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim()) return;
-    
-    setChatHistory(prev => [...prev, {
-      id: Math.random().toString(36).substring(2, 9),
-      role: 'user',
-      text: text
-    }]);
-
-    await sendPayloadToBackend(text);
-  };
-
-  const sendToolResult = async (toolUseId: string, resultMessage: string) => {
-    await sendPayloadToBackend(null, {
-      tool_use_id: toolUseId,
-      content: resultMessage
-    });
+  // Kept for API compatibility — no-op in the Anna-native version
+  const sendToolResult = async (_toolUseId: string, _resultMessage: string) => {
+    await sendMessage(_resultMessage);
   };
 
   const clearChat = () => {
+    sessionIdRef.current = null;
     setChatHistory([{
       id: Math.random().toString(36).substring(2, 9),
       role: 'ai',

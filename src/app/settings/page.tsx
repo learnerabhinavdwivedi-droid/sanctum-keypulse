@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
 import { GoogleIntegrationFetcher } from '../../components/GoogleIntegrationFetcher';
-import { Settings, GitBranch, Github, Lock, CheckCircle2 } from 'lucide-react';
+import { Settings, GitBranch, Lock, CheckCircle2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const [githubConnected, setGithubConnected] = useState(false);

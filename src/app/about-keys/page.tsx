@@ -101,7 +101,7 @@ export default function AboutKeysPage() {
   const categories = Object.keys(groupedKeys) as Array<keyof typeof CATEGORY_MAP>;
 
   return (
-    <DashboardLayout identity={identity}>
+    <DashboardLayout>
       <div className="bg-[#FAF8F5] min-h-full pb-12">
         
         <div className="mb-10 border-b-8 border-black pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">

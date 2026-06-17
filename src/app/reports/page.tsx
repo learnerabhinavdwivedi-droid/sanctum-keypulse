@@ -95,7 +95,7 @@ Generate a global security report. Return strictly a JSON object with this exact
   };
 
   return (
-    <DashboardLayout identity={identity}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto h-full flex flex-col pb-12">
         
         {isLoading ? (

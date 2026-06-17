@@ -30,7 +30,7 @@ export default function OperatorManualPage() {
   }, []);
 
   return (
-    <DashboardLayout identity={identity}>
+    <DashboardLayout>
       <div className="bg-[#FAF8F5] min-h-full pb-12">
         
         {/* Header */}

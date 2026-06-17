@@ -90,7 +90,7 @@ export const useKeyManager = () => {
         persistKeys(updatedKeys);
         return updatedKeys;
       });
-    } catch (e) {
+    } catch {
       // Error deleting key
     } finally {
       setIsLoading(false);
@@ -105,7 +105,7 @@ export const useKeyManager = () => {
         persistKeys(updatedKeys);
         return updatedKeys;
       });
-    } catch (e) {
+    } catch {
       // Error revoking key
     } finally {
       setIsLoading(false);

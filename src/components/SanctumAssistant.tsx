@@ -16,7 +16,7 @@ interface Message {
 }
 
 export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevokeKey }) => {
-  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([
     { id: 'initial', role: 'ai', text: 'I am the Sanctum Security Agent. My systems are ready.' }
@@ -211,6 +211,7 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
       {!isChatOpen && (
         <button 
           onClick={() => setIsChatOpen(true)}
+          aria-label="Open Sanctum Agent"
           className="fixed bottom-8 right-8 w-16 h-16 bg-[#00E5FF] border-4 border-black rounded-full shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all z-40"
         >
           <ShieldCheck className="w-8 h-8" />

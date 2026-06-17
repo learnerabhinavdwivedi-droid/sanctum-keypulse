@@ -22,15 +22,15 @@ import {
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  identity?: string | null;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, identity }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const { keys } = useKeyManager();
   const [showAlertDropdown, setShowAlertDropdown] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userEmail, setUserEmail] = useState<string>('operator@sanctum.hq');
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
 
   useEffect(() => {
     const loadIdentity = async () => {
@@ -178,9 +178,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
               Help
             </Link>
             
-            <button onClick={() => alert('Already on the highest tier: ANNA_ENTERPRISE_BETA')} className="px-8 py-3 bg-[#00E5FF] text-black border-4 border-black text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
+            <button onClick={() => setShowUpgradeBanner(b => !b)} className="px-8 py-3 bg-[#00E5FF] text-black border-4 border-black text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
               Upgrade System
             </button>
+            {showUpgradeBanner && (
+              <div className="absolute top-20 right-8 bg-[#00CD74] border-4 border-black px-6 py-3 shadow-[6px_6px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest text-sm z-50 whitespace-nowrap">
+                ✦ Already on ANNA_ENTERPRISE_BETA
+              </div>
+            )}
           </div>
         </header>
 
