@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useKeyManager } from '../hooks/useKeyManager';
-import { Loader2, CheckCircle, Search, ShieldAlert, Link as LinkIcon, Chrome } from 'lucide-react';
+import { Loader2, CheckCircle, Search, ShieldAlert, Link as LinkIcon, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export const GoogleIntegrationFetcher = () => {
@@ -95,7 +95,7 @@ export const GoogleIntegrationFetcher = () => {
     }`}>
       <div className="p-6 border-b-4 border-black flex items-center justify-between">
         <h3 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-black">
-          <Chrome className="w-6 h-6" />
+          <LogIn className="w-6 h-6" />
           {status === 'success' ? 'INTEGRATION COMPLETE' : '1-Click SSO Integrator'}
         </h3>
         {status === 'idle' && <ShieldAlert className="w-6 h-6 text-black" />}
@@ -124,7 +124,7 @@ export const GoogleIntegrationFetcher = () => {
               disabled={!targetService.trim()}
               className="bg-black text-white font-black uppercase tracking-widest px-8 py-4 border-4 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
             >
-              <Chrome className="w-5 h-5" />
+              <LogIn className="w-5 h-5" />
               Authenticate via Google SSO
             </button>
           </div>
