@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck, Play, ArrowRight, Activity, GitBranch, Key, Database, Bot, Zap, CheckCircle2, Lock, Satellite, Rocket, Telescope, Orbit, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { annaBridge } from '../lib/annaBridge';
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -55,6 +56,10 @@ const sectionVariants = {
 };
 
 export default function LandingPage() {
+  useEffect(() => {
+    annaBridge.window.setTitle('Sanctum KeyPulse — AI Security Vault');
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-black font-sans overflow-x-hidden selection:bg-[#FFD200] selection:text-black pb-20">
       
