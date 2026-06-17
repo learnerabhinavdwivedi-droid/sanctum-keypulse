@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "name": "Civic AI Oracle",
+  "version": "1.0.0",
+  "description": "A civic engagement platform featuring an AI Oracle and secure mock voting mechanics.",
+  "developer": {
+    "name": "Civic Innovators"
+  },
+  "frontend": {
+    "framework": "nextjs",
+    "entry": "src/app/page.tsx"
+  },
+  "hostApis": {
+    "llm": true,
+    "storage": true
+  },
+  "permissions": [
+    "llm:complete",
+    "storage:read",
+    "storage:write"
+  ]
+}
