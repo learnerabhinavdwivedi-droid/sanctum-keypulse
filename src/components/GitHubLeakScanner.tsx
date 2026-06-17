@@ -7,7 +7,7 @@ export const GitHubLeakScanner = () => {
   const [repoInput, setRepoInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'scanning' | 'parsing' | 'detected' | 'error' | 'clean'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [leakedKeyData, setLeakedKeyData] = useState<any>(null);
+  const [leakedKeyData, setLeakedKeyData] = useState<Record<string, unknown> | null>(null);
   const { appendKey } = useKeyManager();
 
   const handleScan = async () => {
@@ -44,7 +44,7 @@ export const GitHubLeakScanner = () => {
           owner = parts[0];
           repo = parts[1];
         }
-      } catch (e) {
+      } catch {
         // Not a URL, try shorthand
         const parts = repoInput.split('/');
         if (parts.length >= 2) {
@@ -101,7 +101,7 @@ ${foundFileText}`;
       let parsedData;
       try {
         parsedData = JSON.parse(llmResponse.trim().replace(/^```json/, '').replace(/```$/, ''));
-      } catch (err) {
+      } catch {
         throw new Error('Failed to parse LLM extraction response.');
       }
 
@@ -115,8 +115,8 @@ ${foundFileText}`;
       setLeakedKeyData(parsedData);
       setStatus('detected');
 
-    } catch (error: any) {
-      setErrorMessage(error.message || 'An unknown error occurred during the scan.');
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'An unknown error occurred during the scan.');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 5000);
     }
@@ -126,21 +126,23 @@ ${foundFileText}`;
     if (!leakedKeyData) return;
 
     let mask = '••••••••••••';
-    if (leakedKeyData.rawKey.length > 10) {
-      mask = `${leakedKeyData.rawKey.substring(0, 6)}...${leakedKeyData.rawKey.substring(leakedKeyData.rawKey.length - 4)}`;
-    } else if (leakedKeyData.rawKey.length > 2) {
-      mask = `${leakedKeyData.rawKey.substring(0, 2)}...${leakedKeyData.rawKey.substring(leakedKeyData.rawKey.length - 2)}`;
+    if (leakedKeyData && typeof leakedKeyData.rawKey === 'string') {
+      if (leakedKeyData.rawKey.length > 10) {
+        mask = `${leakedKeyData.rawKey.substring(0, 6)}...${leakedKeyData.rawKey.substring(leakedKeyData.rawKey.length - 4)}`;
+      } else if (leakedKeyData.rawKey.length > 2) {
+        mask = `${leakedKeyData.rawKey.substring(0, 2)}...${leakedKeyData.rawKey.substring(leakedKeyData.rawKey.length - 2)}`;
+      }
     }
 
     const newKey = {
       id: Math.random().toString(36).substring(7),
-      label: `LEAKED_${leakedKeyData.provider}`,
-      provider: leakedKeyData.provider,
+      label: `LEAKED_${String(leakedKeyData?.provider)}`,
+      provider: String(leakedKeyData?.provider),
       mask,
-      rawKey: leakedKeyData.rawKey,
+      rawKey: String(leakedKeyData?.rawKey),
       status: 'Revoked', // Force revoked/degraded due to public exposure
       lastUsed: new Date().toISOString().split('T')[0],
-      accessProfile: leakedKeyData.scopes || ['api.read'],
+      accessProfile: (leakedKeyData?.scopes as string[]) || ['api.read'],
       directPortalUrl: `https://github.com/${repoInput}`,
       quota: 100 // Maximum quota breach for immediate attention
     };
@@ -225,13 +227,13 @@ ${foundFileText}`;
             <div className="mt-12 mb-6">
               <h4 className="font-black text-xl mb-4 text-black uppercase">Critical Compromise Detected</h4>
               <div className="space-y-3 font-bold text-sm bg-gray-100 p-4 border-2 border-black">
-                <p><span className="text-gray-500 uppercase">Provider:</span> {leakedKeyData.provider}</p>
-                <p><span className="text-gray-500 uppercase">File Origin:</span> {leakedKeyData.fileName}</p>
-                <p><span className="text-gray-500 uppercase">Exposed Key:</span> <span className="font-mono text-[#FF4B91]">{leakedKeyData.rawKey}</span></p>
+                <p><span className="text-gray-500 uppercase">Provider:</span> {String(leakedKeyData.provider)}</p>
+                <p><span className="text-gray-500 uppercase">File Origin:</span> {String(leakedKeyData.fileName)}</p>
+                <p><span className="text-gray-500 uppercase">Exposed Key:</span> <span className="font-mono text-[#FF4B91]">{String(leakedKeyData.rawKey)}</span></p>
                 <div className="flex gap-2 flex-wrap mt-2">
-                  {leakedKeyData.scopes && leakedKeyData.scopes.map((s: string, i: number) => (
+                  {Array.isArray(leakedKeyData.scopes) && leakedKeyData.scopes.map((s: unknown, i: number) => (
                     <span key={i} className="text-[10px] uppercase border-2 border-black px-2 py-1 bg-[#FFD200] text-black">
-                      {s}
+                      {String(s)}
                     </span>
                   ))}
                 </div>

@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
 import { AlertTriangle, ShieldAlert, CheckSquare, Zap, Activity } from 'lucide-react';
+import { useKeyManager } from '../../hooks/useKeyManager';
+import { annaBridge } from '../../lib/annaBridge';
 
 interface ReportPayload {
   overallHealthScore: number;
@@ -15,6 +17,7 @@ export default function ReportsPage() {
   const [report, setReport] = useState<ReportPayload | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const { keys, isLoading: keysLoading } = useKeyManager();
 
   useEffect(() => {
     const initIdentity = async () => {
@@ -27,25 +30,57 @@ export default function ReportsPage() {
     initIdentity();
   }, []);
 
-  useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch('/api/reports');
-        if (res.ok) {
-          const data = await res.json();
-          setReport(data);
-        } else {
-          setError('Failed to fetch intelligence report.');
-        }
-      } catch (err) {
-        setError('Network error analyzing infrastructure.');
-      } finally {
-        setIsLoading(false);
+  const generateReport = async () => {
+    if (keysLoading) return;
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const keyData = keys.map(k => ({ label: k.label, provider: k.provider, scopes: k.accessProfile, status: k.status, quota: k.quota }));
+      
+      let parsedData;
+      if (keyData.length === 0) {
+        parsedData = {
+          overallHealthScore: 100,
+          criticalRisks: [],
+          actionablePlaybook: []
+        };
+      } else {
+        const prompt = `You are a security audit system. Review the following active keys in the vault:
+${JSON.stringify(keyData)}
+
+Generate a global security report. Return strictly a JSON object with this exact schema (no markdown formatting):
+{
+  "overallHealthScore": (number between 0-100),
+  "criticalRisks": ["string array of risks"],
+  "actionablePlaybook": [
+    { "action": "what to do", "priority": "HIGH", "MEDIUM" or "LOW" }
+  ]
+}`;
+
+        const llmResponse = await annaBridge.llm.complete(prompt);
+        parsedData = JSON.parse(llmResponse.trim().replace(/^```json/, '').replace(/```$/, ''));
       }
-    };
-    fetchReport();
-  }, []);
+      
+      // Defensive fallback to prevent runtime crashes if the LLM output deviates
+      if (!parsedData.criticalRisks) parsedData.criticalRisks = [];
+      if (!parsedData.actionablePlaybook) parsedData.actionablePlaybook = [];
+      if (typeof parsedData.overallHealthScore !== 'number') parsedData.overallHealthScore = 50;
+
+      setReport(parsedData);
+    } catch (err) {
+      setError('Network error analyzing infrastructure via Anna AI.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!keysLoading) {
+      generateReport();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keysLoading]);
 
   const getScoreColor = (score: number) => {
     if (score > 80) return 'text-[#00CD74]';
@@ -82,7 +117,13 @@ export default function ReportsPage() {
              <div className="bg-white border-8 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] p-12 text-center max-w-xl w-full">
                <ShieldAlert className="w-24 h-24 text-[#FF4B91] mx-auto mb-6" />
                <h2 className="text-4xl font-black text-black tracking-tighter uppercase mb-4">CRITICAL FAULT</h2>
-               <p className="font-bold text-white text-xl bg-[#FF4B91] border-4 border-black p-4 uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">{error}</p>
+               <p className="font-bold text-white text-xl bg-[#FF4B91] border-4 border-black p-4 uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6">{error}</p>
+               <button
+                 onClick={() => generateReport()}
+                 className="px-8 py-4 bg-[#FFD200] border-4 border-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+               >
+                 Retry Scan
+               </button>
              </div>
            </div>
         ) : report ? (

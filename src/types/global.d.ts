@@ -6,9 +6,16 @@ declare global {
       identity?: {
         id: string;
       };
-      storage?: any;
+      storage?: {
+        get: (key: string) => Promise<unknown>;
+        set: (key: string, value: unknown) => Promise<void>;
+      };
       llm?: {
-        complete: any;
+        complete: (promptOrSystem: string, userPrompt?: string) => Promise<string>;
+      };
+      agent?: {
+        start: (config: { context: string }) => Promise<string>;
+        sendMessage: (sessionId: string, prompt: string) => Promise<string>;
       };
     };
   }

@@ -34,7 +34,7 @@ export const UniversalFetcher = () => {
       let parsedData;
       try {
         parsedData = JSON.parse(llmResponse.trim().replace(/^```json/, '').replace(/```$/, ''));
-      } catch (e) {
+      } catch {
         parsedData = {
           label: `Extracted_Key_${Math.random().toString(36).substring(7)}`,
           token: `mock_ext_${Math.random().toString(36).substring(7)}`,
@@ -74,8 +74,8 @@ export const UniversalFetcher = () => {
         setDbConnection('');
       }, 3000);
 
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Extraction Failed');
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'Extraction Failed');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 4000);
     }

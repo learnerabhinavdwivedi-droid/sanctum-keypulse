@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useKeyManager } from '../hooks/useKeyManager';
 import { Loader2, CheckCircle, Search, ShieldAlert, LogIn } from 'lucide-react';
 import { annaBridge } from '../lib/annaBridge';
@@ -7,7 +7,18 @@ export const GoogleIntegrationFetcher = () => {
   const [targetService, setTargetService] = useState('');
   const [status, setStatus] = useState<'idle' | 'connecting' | 'extracting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [linkedServices, setLinkedServices] = useState<string[]>([]);
   const { appendKey } = useKeyManager();
+
+  useEffect(() => {
+    const loadLinked = async () => {
+      const stored = await annaBridge.storage.get('google_auth_linked');
+      if (stored && Array.isArray(stored)) {
+        setLinkedServices(stored);
+      }
+    };
+    loadLinked();
+  }, []);
 
   const handleGoogleSSO = async () => {
     if (!targetService.trim()) {
@@ -34,7 +45,7 @@ export const GoogleIntegrationFetcher = () => {
       let parsedData;
       try {
         parsedData = JSON.parse(llmResponse.trim().replace(/^```json/, '').replace(/```$/, ''));
-      } catch (e) {
+      } catch {
         // Fallback if LLM fails to return strict JSON
         parsedData = {
           token: `mock_${targetService.toLowerCase()}_${Math.random().toString(36).substring(7)}`,
@@ -68,6 +79,10 @@ export const GoogleIntegrationFetcher = () => {
 
       await appendKey(newKey);
       
+      const newLinked = [...linkedServices, targetService];
+      setLinkedServices(newLinked);
+      await annaBridge.storage.set('google_auth_linked', newLinked);
+      
       // Step 3: Integration Complete
       setStatus('success');
       
@@ -76,8 +91,8 @@ export const GoogleIntegrationFetcher = () => {
         setTargetService('');
       }, 3000);
 
-    } catch (err: any) {
-      setErrorMessage(err.message || 'SSO Authentication Failed');
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'SSO Authentication Failed');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 4000);
     }
@@ -101,6 +116,17 @@ export const GoogleIntegrationFetcher = () => {
 
       <div className="p-8 flex flex-col items-center text-center">
         
+        {linkedServices.length > 0 && status === 'idle' && (
+          <div className="w-full mb-6 bg-gray-50 border-4 border-black p-4 text-left">
+            <span className="font-black text-[10px] text-gray-500 uppercase tracking-widest block mb-2">LINKED SERVICES</span>
+            <div className="flex flex-wrap gap-2">
+              {linkedServices.map(srv => (
+                <span key={srv} className="px-3 py-1 bg-[#00CD74] border-2 border-black font-bold text-xs uppercase text-black">{srv}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {status === 'idle' && (
           <div className="w-full">
             <p className="font-bold mb-6 text-sm uppercase tracking-wider text-black">

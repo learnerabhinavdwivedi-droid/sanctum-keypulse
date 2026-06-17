@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useKeyManager } from '../hooks/useKeyManager';
+import { annaBridge } from '../lib/annaBridge';
 import { 
   Bell, 
   HelpCircle, 
@@ -29,6 +30,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
   const { keys } = useKeyManager();
   const [showAlertDropdown, setShowAlertDropdown] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [userEmail, setUserEmail] = useState<string>('operator@sanctum.hq');
+
+  useEffect(() => {
+    const loadIdentity = async () => {
+      const storedIdentity = await annaBridge.storage.get('anna_identity');
+      if (storedIdentity && typeof storedIdentity === 'string') {
+        setUserEmail(storedIdentity);
+      }
+    };
+    loadIdentity();
+  }, []);
   
   // Track degraded keys
   const degradedKeys = keys.filter(k => k.status === 'Revoked' || (k.quota && k.quota >= 90));
@@ -40,7 +52,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
     <div className="flex h-screen bg-[#FAF8F5] text-black font-sans overflow-hidden selection:bg-[#00E5FF] selection:text-black">
       
       {/* Sidebar */}
-      <aside className={`relative w-[280px] bg-white border-r-8 border-black flex flex-col flex-shrink-0 z-30 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0 shadow-[8px_0px_0px_rgba(0,0,0,1)]' : '-ml-[280px] shadow-none'}`}>
+      <aside className={`relative w-[280px] bg-gray-100 border-r-8 border-black flex flex-col flex-shrink-0 z-30 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0 shadow-[8px_0px_0px_rgba(0,0,0,1)]' : '-ml-[280px] shadow-none'}`}>
         
         {/* Slide Handle Button */}
         <button
@@ -63,13 +75,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-4 overflow-y-auto custom-scrollbar">
-          <Link href="/" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/') ? 'bg-[#00E5FF] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          <Link href="/key-vault" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/key-vault') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <LayoutDashboard className="w-6 h-6" />
             <span className="text-sm">Dashboard</span>
-          </Link>
-          <Link href="/key-vault" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/key-vault') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
-            <KeyRound className="w-6 h-6" />
-            <span className="text-sm">Key Vault</span>
           </Link>
           <Link href="/api-fetcher" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/api-fetcher') ? 'bg-[#00E5FF] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <KeyRound className="w-6 h-6" />
@@ -93,11 +101,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
           </Link>
         </nav>
 
-        <div className="p-4 border-t-8 border-black bg-white">
-          <a href="#" className="flex items-center gap-4 px-4 py-4 bg-white border-4 border-black font-black uppercase tracking-widest hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all">
+        <div className="p-4 border-t-8 border-black bg-gray-100">
+          <Link href="/settings" className={`w-full flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/settings') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-200 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <Settings className="w-6 h-6 text-black" />
             <span className="text-sm text-black">Settings</span>
-          </a>
+          </Link>
         </div>
       </aside>
 
@@ -108,7 +116,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
         <header className="h-24 flex items-center justify-between px-8 bg-white border-b-8 border-black flex-shrink-0 z-10">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-black text-black tracking-tighter uppercase">
-              {isActive('/') ? 'SYSTEM DASHBOARD' : isActive('/key-vault') ? 'KEY VAULT' : isActive('/diagnostics') ? 'DIAGNOSTIC HUB' : isActive('/about-keys') ? 'KEY DIRECTORY' : isActive('/reports') ? 'GLOBAL REPORTS' : isActive('/docs') ? 'OPERATOR MANUAL' : 'DASHBOARD'}
+              {isActive('/key-vault') ? 'SYSTEM DASHBOARD' : isActive('/diagnostics') ? 'DIAGNOSTIC HUB' : isActive('/api-fetcher') ? 'API FETCHER' : isActive('/osint-scanner') ? 'OSINT SCANNER' : isActive('/about-keys') ? 'KEY DIRECTORY' : isActive('/reports') ? 'GLOBAL REPORTS' : isActive('/docs') ? 'OPERATOR MANUAL' : isActive('/settings') ? 'WORKSPACE SETTINGS' : 'DASHBOARD'}
             </h1>
           </div>
           
@@ -155,7 +163,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
               <div className="flex flex-col mr-2 text-right">
                 <span className="text-[10px] font-black text-black uppercase tracking-widest leading-none">Developer</span>
                 <span className="text-sm font-bold text-black mt-1">
-                  learnerabhinavdwivedi@gmail.com
+                  {userEmail}
                 </span>
               </div>
               <div className="w-8 h-8 bg-black border-2 border-black flex items-center justify-center">
@@ -170,7 +178,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
               Help
             </Link>
             
-            <button className="px-8 py-3 bg-[#00E5FF] text-black border-4 border-black text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
+            <button onClick={() => alert('Already on the highest tier: ANNA_ENTERPRISE_BETA')} className="px-8 py-3 bg-[#00E5FF] text-black border-4 border-black text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
               Upgrade System
             </button>
           </div>

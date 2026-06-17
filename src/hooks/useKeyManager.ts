@@ -20,6 +20,7 @@ export const useKeyManager = () => {
 
   const fetchKeys = useCallback(async () => {
     try {
+      await Promise.resolve();
       setIsLoading(true);
       const storedKeys = await annaBridge.storage.get('vaultKeys');
       if (storedKeys && Array.isArray(storedKeys)) {
@@ -27,7 +28,7 @@ export const useKeyManager = () => {
       } else {
         setKeys([]);
       }
-    } catch (e) {
+    } catch {
       // Error fetching keys from Anna storage
     } finally {
       setIsLoading(false);
@@ -35,6 +36,7 @@ export const useKeyManager = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchKeys();
   }, [fetchKeys]);
 
@@ -73,7 +75,7 @@ export const useKeyManager = () => {
         persistKeys(updatedKeys);
         return updatedKeys;
       });
-    } catch (e) {
+    } catch {
       // Error adding key
     } finally {
       setIsLoading(false);

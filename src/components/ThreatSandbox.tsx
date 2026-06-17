@@ -32,7 +32,7 @@ Does this payload violate least-privilege principles or contain threat vectors? 
 
       const response = await annaBridge.llm.complete(prompt);
       setReport(response);
-    } catch (e) {
+    } catch {
       setReport("Error: Failed to evaluate payload against threat models.");
     } finally {
       setIsEvaluating(false);

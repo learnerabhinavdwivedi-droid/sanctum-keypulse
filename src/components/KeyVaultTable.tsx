@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { KeyRecord } from '../hooks/useKeyManager';
-import { ArrowUpDown, KeyRound, MoreVertical, Link as LinkIcon } from 'lucide-react';
+import { ArrowUpDown, KeyRound, MoreVertical, Link as LinkIcon, Trash2 } from 'lucide-react';
 
 interface KeyVaultTableProps {
   keys: KeyRecord[];
   onRevoke: (id: string) => void;
+  onDelete: (id: string) => void;
   onCreateSingleKey: () => void;
 }
 
-export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, onCreateSingleKey }) => {
+export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, onDelete, onCreateSingleKey }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -136,14 +137,27 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
                   </div>
                 </td>
                 <td className="px-4 py-5 text-center">
-                  <button 
-                    onClick={() => onRevoke(row.id)}
-                    disabled={row.status === 'Revoked'}
-                    className="p-1 border-2 border-transparent hover:border-black bg-transparent hover:bg-[#FF4B91] hover:text-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all text-[#FF4B91] disabled:opacity-30 disabled:cursor-not-allowed"
-                    title="Revoke Key"
-                  >
-                    <MoreVertical className="w-6 h-6" />
-                  </button>
+                  <div className="flex items-center justify-center gap-2">
+                    <button 
+                      onClick={() => onRevoke(row.id)}
+                      disabled={row.status === 'Revoked'}
+                      className="p-1 border-2 border-transparent hover:border-black bg-transparent hover:bg-[#FF4B91] hover:text-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all text-[#FF4B91] disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Revoke Key"
+                    >
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to permanently delete the key: ${row.label}?`)) {
+                          onDelete(row.id);
+                        }
+                      }}
+                      className="p-1 border-2 border-transparent hover:border-black bg-transparent hover:bg-black hover:text-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all text-gray-500"
+                      title="Delete Key Permanently"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             )) : (

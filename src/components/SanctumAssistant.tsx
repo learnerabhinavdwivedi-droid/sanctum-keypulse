@@ -75,7 +75,7 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
         await new Promise(r => setTimeout(r, 1500));
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'ai', text: `Anna Platform SDK missing. Fallback response for: "${userMessage}"` }]);
       }
-    } catch (e) {
+    } catch {
       setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'ai', text: "Error: Failed to process tokens." }]);
     } finally {
       setIsTyping(false);

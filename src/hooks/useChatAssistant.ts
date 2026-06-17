@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { KeyRecord } from './useKeyManager';
 
 export interface ChatMessage {
@@ -8,11 +8,11 @@ export interface ChatMessage {
   toolCall?: {
     id: string;
     name: string;
-    input: any;
+    input: unknown;
   };
 }
 
-export const useChatAssistant = (keys: KeyRecord[]) => {
+export const useChatAssistant = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
@@ -22,7 +22,7 @@ export const useChatAssistant = (keys: KeyRecord[]) => {
     }
   ]);
 
-  const sendPayloadToBackend = async (payloadMessage: string | null, toolResult: any = null) => {
+  const sendPayloadToBackend = async (payloadMessage: string | null, toolResult: unknown = null) => {
     setIsTyping(true);
 
     try {
@@ -72,7 +72,7 @@ export const useChatAssistant = (keys: KeyRecord[]) => {
           toolCall: data.toolCall
         }]);
       }
-    } catch (e) {
+    } catch {
       setChatHistory(prev => [...prev, {
         id: Math.random().toString(36).substring(2, 9),
         role: 'ai',
