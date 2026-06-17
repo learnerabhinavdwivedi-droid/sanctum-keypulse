@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useKeyManager } from '../hooks/useKeyManager';
@@ -14,7 +14,9 @@ import {
   FileText, 
   ShieldCheck,
   UserCheck,
-  BookOpen
+  BookOpen,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -26,10 +28,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
   const pathname = usePathname();
   const { keys } = useKeyManager();
   const [showAlertDropdown, setShowAlertDropdown] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
   // Track degraded keys
-  // For this mock, we assume usage is high if status is 'Revoked' or mock usage condition is met
-  const degradedKeys = keys.filter(k => k.status === 'Revoked');
+  const degradedKeys = keys.filter(k => k.status === 'Revoked' || (k.quota && k.quota >= 90));
   const hasAlerts = degradedKeys.length > 0;
 
   const isActive = (path: string) => pathname === path;
@@ -38,7 +40,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
     <div className="flex h-screen bg-[#FAF8F5] text-black font-sans overflow-hidden selection:bg-[#00E5FF] selection:text-black">
       
       {/* Sidebar */}
-      <aside className="w-[280px] bg-white border-r-8 border-black flex flex-col flex-shrink-0 z-20 shadow-[8px_0px_0px_rgba(0,0,0,1)]">
+      <aside className={`relative w-[280px] bg-white border-r-8 border-black flex flex-col flex-shrink-0 z-30 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0 shadow-[8px_0px_0px_rgba(0,0,0,1)]' : '-ml-[280px] shadow-none'}`}>
+        
+        {/* Slide Handle Button */}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="absolute -right-12 top-1/2 -translate-y-1/2 w-12 h-24 bg-[#00E5FF] border-y-8 border-r-8 border-black flex items-center justify-center cursor-pointer hover:bg-[#FFD200] transition-colors rounded-r-xl shadow-[6px_4px_0px_rgba(0,0,0,1)] z-40"
+          title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        >
+          {isSidebarOpen ? <ChevronLeft className="w-8 h-8 text-black" /> : <ChevronRight className="w-8 h-8 text-black" />}
+        </button>
         <div className="h-24 flex items-center px-6 border-b-8 border-black bg-[#FFD200]">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
@@ -64,6 +75,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
             <KeyRound className="w-6 h-6" />
             <span className="text-sm">API Fetcher</span>
           </Link>
+          <Link href="/osint-scanner" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/osint-scanner') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+            <ShieldCheck className="w-6 h-6" />
+            <span className="text-sm">OSINT Scanner</span>
+          </Link>
           <Link href="/about-keys" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/about-keys') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <BookOpen className="w-6 h-6" />
             <span className="text-sm">Directory</span>
@@ -87,13 +102,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative z-10 transition-all duration-300">
         
         {/* Top Header */}
         <header className="h-24 flex items-center justify-between px-8 bg-white border-b-8 border-black flex-shrink-0 z-10">
-          <h1 className="text-3xl font-black text-black tracking-tighter uppercase">
-            {isActive('/') ? 'SYSTEM DASHBOARD' : isActive('/key-vault') ? 'KEY VAULT' : isActive('/diagnostics') ? 'DIAGNOSTIC HUB' : isActive('/about-keys') ? 'KEY DIRECTORY' : isActive('/reports') ? 'GLOBAL REPORTS' : isActive('/api-fetcher') ? 'API FETCHER' : isActive('/docs') ? 'OPERATOR MANUAL' : 'DASHBOARD'}
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-black text-black tracking-tighter uppercase">
+              {isActive('/') ? 'SYSTEM DASHBOARD' : isActive('/key-vault') ? 'KEY VAULT' : isActive('/diagnostics') ? 'DIAGNOSTIC HUB' : isActive('/about-keys') ? 'KEY DIRECTORY' : isActive('/reports') ? 'GLOBAL REPORTS' : isActive('/docs') ? 'OPERATOR MANUAL' : 'DASHBOARD'}
+            </h1>
+          </div>
           
           <div className="flex items-center gap-6">
             <div className="relative">
@@ -120,7 +137,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
                       degradedKeys.map(key => (
                         <div key={key.id} className="p-4 border-b-2 border-black bg-white hover:bg-gray-100 transition-colors">
                           <p className="font-black uppercase tracking-wide text-black">{key.label}</p>
-                          <p className="font-bold text-xs uppercase text-[#FF4B91] mt-1">STATUS: {key.status}</p>
+                          <p className="font-bold text-xs uppercase text-[#FF4B91] mt-1">STATUS: {key.status === 'Revoked' ? 'REVOKED' : `QUOTA BREACH (${key.quota}%)`}</p>
                         </div>
                       ))
                     ) : (
@@ -168,4 +185,3 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
     </div>
   );
 };
-

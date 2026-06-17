@@ -5,6 +5,8 @@
   "permissions": {
     "storage": "visibility",
     "llm": "visibility",
-    "agent": "visibility"
+    "agent": "visibility",
+    "tools": "visibility",
+    "chat": "visibility"
   }
 }

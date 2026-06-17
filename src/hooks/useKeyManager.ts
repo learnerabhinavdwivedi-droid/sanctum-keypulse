@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { annaBridge } from '../lib/annaBridge';
 
 export interface KeyRecord {
   id: string;
@@ -9,6 +10,8 @@ export interface KeyRecord {
   status: string;
   lastUsed: string;
   accessProfile: string[];
+  directPortalUrl?: string;
+  quota?: number;
 }
 
 export const useKeyManager = () => {
@@ -18,19 +21,14 @@ export const useKeyManager = () => {
   const fetchKeys = useCallback(async () => {
     try {
       setIsLoading(true);
-      if (typeof window !== 'undefined' && window.Anna) {
-        const storedKeys = await window.Anna.storage.get('vaultKeys');
-        if (storedKeys && Array.isArray(storedKeys)) {
-          setKeys(storedKeys);
-        } else {
-          setKeys([]);
-        }
+      const storedKeys = await annaBridge.storage.get('vaultKeys');
+      if (storedKeys && Array.isArray(storedKeys)) {
+        setKeys(storedKeys);
       } else {
-        // Fallback for local development if Anna is not injected
         setKeys([]);
       }
     } catch (e) {
-      console.error('Error fetching keys from Anna storage', e);
+      // Error fetching keys from Anna storage
     } finally {
       setIsLoading(false);
     }
@@ -41,9 +39,7 @@ export const useKeyManager = () => {
   }, [fetchKeys]);
 
   const persistKeys = async (newKeys: KeyRecord[]) => {
-    if (typeof window !== 'undefined' && window.Anna) {
-      await window.Anna.storage.set('vaultKeys', newKeys);
-    }
+    await annaBridge.storage.set('vaultKeys', newKeys);
   };
 
   const addKey = async (label: string, rawKey: string, provider: string = 'Custom', accessScopes: string[] = ['api.read']) => {
@@ -56,6 +52,9 @@ export const useKeyManager = () => {
         mask = `${rawKey.substring(0, 2)}...${rawKey.substring(rawKey.length - 2)}`;
       }
 
+      // Hackathon mock quota logic: random number between 10 and 95
+      const mockQuota = Math.floor(Math.random() * 85) + 10;
+      
       const newKey: KeyRecord = {
         id: Math.random().toString(36).substring(7),
         label,
@@ -64,14 +63,18 @@ export const useKeyManager = () => {
         rawKey,
         status: 'Active',
         lastUsed: new Date().toISOString().split('T')[0],
-        accessProfile: accessScopes
+        accessProfile: accessScopes,
+        directPortalUrl: `https://${provider.toLowerCase()}.com/developers/keys`,
+        quota: mockQuota
       };
 
-      const updatedKeys = [newKey, ...keys];
-      setKeys(updatedKeys);
-      await persistKeys(updatedKeys);
+      setKeys(prevKeys => {
+        const updatedKeys = [newKey, ...prevKeys];
+        persistKeys(updatedKeys);
+        return updatedKeys;
+      });
     } catch (e) {
-      console.error('Error adding key', e);
+      // Error adding key
     } finally {
       setIsLoading(false);
     }
@@ -80,11 +83,13 @@ export const useKeyManager = () => {
   const deleteKey = async (id: string) => {
     try {
       setIsLoading(true);
-      const updatedKeys = keys.filter(k => k.id !== id);
-      setKeys(updatedKeys);
-      await persistKeys(updatedKeys);
+      setKeys(prevKeys => {
+        const updatedKeys = prevKeys.filter(k => k.id !== id);
+        persistKeys(updatedKeys);
+        return updatedKeys;
+      });
     } catch (e) {
-      console.error('Error deleting key', e);
+      // Error deleting key
     } finally {
       setIsLoading(false);
     }
@@ -93,11 +98,13 @@ export const useKeyManager = () => {
   const revokeKey = async (id: string) => {
     try {
       setIsLoading(true);
-      const updatedKeys = keys.map(k => k.id === id ? { ...k, status: 'Revoked' } : k);
-      setKeys(updatedKeys);
-      await persistKeys(updatedKeys);
+      setKeys(prevKeys => {
+        const updatedKeys = prevKeys.map(k => k.id === id ? { ...k, status: 'Revoked' } : k);
+        persistKeys(updatedKeys);
+        return updatedKeys;
+      });
     } catch (e) {
-      console.error('Error revoking key', e);
+      // Error revoking key
     } finally {
       setIsLoading(false);
     }

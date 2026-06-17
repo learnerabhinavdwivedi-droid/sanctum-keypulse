@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useKeyManager } from '../hooks/useKeyManager';
-import { Loader2, CheckCircle, Search, ShieldAlert, LogIn } from 'lucide-react';
+import { Loader2, CheckCircle, Database, ShieldAlert, KeyRound, Terminal, Lock } from 'lucide-react';
 import { annaBridge } from '../lib/annaBridge';
 
-export const GoogleIntegrationFetcher = () => {
-  const [targetService, setTargetService] = useState('');
+export const UniversalFetcher = () => {
+  const [dbConnection, setDbConnection] = useState('');
   const [status, setStatus] = useState<'idle' | 'connecting' | 'extracting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const { appendKey } = useKeyManager();
 
-  const handleGoogleSSO = async () => {
-    if (!targetService.trim()) {
-      setErrorMessage('Please enter a target service name.');
+  const handleFetch = async () => {
+    if (!dbConnection.trim()) {
+      setErrorMessage('Please provide a valid target database string or connection URL.');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
       return;
@@ -21,31 +21,29 @@ export const GoogleIntegrationFetcher = () => {
     setErrorMessage('');
 
     try {
-      // Step 1: Connecting to Google Account Framework
+      // Step 1: Simulated Connection delay
       await new Promise(r => setTimeout(r, 1500));
       
-      // Step 2: Requesting 3rd Party Token
+      // Step 2: Extraction via Anna Agent
       setStatus('extracting');
       
-      const prompt = `Generate a realistic mock API token and exactly three authorization access scopes for the service: ${targetService}. Return the result strictly as a JSON object with keys "token" (string) and "scopes" (array of strings). Do not include markdown formatting or extra text.`;
+      const prompt = `Simulate a backend extraction. Generate a realistic mock API Key or Authentication Token for the following connection string or service name: ${dbConnection}. Return the result strictly as a JSON object with keys "label" (a descriptive name for the key), "token" (the raw string), and "provider" (the inferred platform name). Do not include markdown formatting or extra text.`;
       
-      const llmResponse = await annaBridge.llm.complete(prompt, "You are a technical data generator.");
+      const llmResponse = await annaBridge.llm.complete(prompt, "You are a secure data extractor.");
       
       let parsedData;
       try {
         parsedData = JSON.parse(llmResponse.trim().replace(/^```json/, '').replace(/```$/, ''));
       } catch (e) {
-        // Fallback if LLM fails to return strict JSON
         parsedData = {
-          token: `mock_${targetService.toLowerCase()}_${Math.random().toString(36).substring(7)}`,
-          scopes: [`${targetService.toLowerCase()}:read`, `${targetService.toLowerCase()}:write`, 'profile:read']
+          label: `Extracted_Key_${Math.random().toString(36).substring(7)}`,
+          token: `mock_ext_${Math.random().toString(36).substring(7)}`,
+          provider: 'Custom_DB'
         };
       }
 
-      // Hackathon mock quota
       const mockQuota = Math.floor(Math.random() * 85) + 10;
-      
-      const rawKey = parsedData.token || `mock_token_${Math.random().toString(36).substring(7)}`;
+      const rawKey = parsedData.token || `mock_ext_${Math.random().toString(36).substring(7)}`;
       let mask = '••••••••••••';
       if (rawKey.length > 10) {
         mask = `${rawKey.substring(0, 6)}...${rawKey.substring(rawKey.length - 4)}`;
@@ -55,29 +53,29 @@ export const GoogleIntegrationFetcher = () => {
 
       const newKey = {
         id: Math.random().toString(36).substring(7),
-        label: `${targetService.toUpperCase()}_API_KEY`,
-        provider: 'GOOGLE_SSO',
+        label: parsedData.label || 'Universal_Extracted_Key',
+        provider: parsedData.provider || 'Universal_Proxy',
         mask,
         rawKey,
         status: 'Active',
         lastUsed: new Date().toISOString().split('T')[0],
-        accessProfile: parsedData.scopes || ['api.read'],
-        directPortalUrl: `https://${targetService.toLowerCase()}.com/developers`,
+        accessProfile: ['db.read', 'api.invoke'],
+        directPortalUrl: `https://${(parsedData.provider || 'custom').toLowerCase().replace(/\s/g, '')}.com/admin`,
         quota: mockQuota
       };
 
       await appendKey(newKey);
       
-      // Step 3: Integration Complete
+      // Step 3: Success
       setStatus('success');
       
       setTimeout(() => {
         setStatus('idle');
-        setTargetService('');
+        setDbConnection('');
       }, 3000);
 
     } catch (err: any) {
-      setErrorMessage(err.message || 'SSO Authentication Failed');
+      setErrorMessage(err.message || 'Extraction Failed');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 4000);
     }
@@ -86,17 +84,17 @@ export const GoogleIntegrationFetcher = () => {
   return (
     <div className={`border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden transition-colors duration-300 ${
       status === 'connecting' ? 'bg-[#FFD200]' :
-      status === 'extracting' ? 'bg-[#00E5FF]' :
+      status === 'extracting' ? 'bg-[#B624FF]' :
       status === 'success' ? 'bg-[#00CD74]' :
       status === 'error' ? 'bg-[#FF4B91]' :
       'bg-white'
     }`}>
       <div className="p-6 border-b-4 border-black flex items-center justify-between bg-white">
         <h3 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-black">
-          <LogIn className="w-6 h-6" />
-          Google Integration Linker
+          <Database className="w-6 h-6" />
+          Universal API Fetcher
         </h3>
-        {status === 'idle' && <ShieldAlert className="w-6 h-6 text-black" />}
+        {status === 'idle' && <Lock className="w-6 h-6 text-black" />}
       </div>
 
       <div className="p-8 flex flex-col items-center text-center">
@@ -104,26 +102,26 @@ export const GoogleIntegrationFetcher = () => {
         {status === 'idle' && (
           <div className="w-full">
             <p className="font-bold mb-6 text-sm uppercase tracking-wider text-black">
-              Enter target service to invoke Google SSO proxy and dynamically provision tokens.
+              Bypass local DB setups. Paste any target connection string or service name. We will extract and sync the keys to your vault automatically.
             </p>
             <div className="relative w-full mx-auto mb-6">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Terminal className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input 
                 type="text" 
-                placeholder="e.g. Stripe, AWS, OpenAI" 
-                value={targetService}
-                onChange={(e) => setTargetService(e.target.value)}
+                placeholder="e.g. postgres://user:pass@host:5432/db or 'SendGrid API'" 
+                value={dbConnection}
+                onChange={(e) => setDbConnection(e.target.value)}
                 className="w-full border-4 border-black px-4 py-3 pl-12 font-bold tracking-widest focus:outline-none focus:bg-gray-100 transition-colors placeholder-gray-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black"
               />
             </div>
             
             <button 
-              onClick={handleGoogleSSO}
-              disabled={!targetService.trim()}
-              className="w-full bg-black text-white font-black uppercase tracking-widest px-8 py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-3"
+              onClick={handleFetch}
+              disabled={!dbConnection.trim()}
+              className="w-full bg-black text-[#00E5FF] font-black uppercase tracking-widest px-8 py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-3"
             >
-              <LogIn className="w-5 h-5" />
-              Authenticate via Google SSO
+              <KeyRound className="w-5 h-5 text-white" />
+              Force Extract Keys
             </button>
           </div>
         )}
@@ -131,14 +129,14 @@ export const GoogleIntegrationFetcher = () => {
         {status === 'connecting' && (
           <div className="flex flex-col items-center text-black py-4">
             <Loader2 className="w-16 h-16 animate-spin mb-4 text-black" />
-            <h4 className="text-xl font-black uppercase tracking-widest text-black">Connecting to Google Account Framework...</h4>
+            <h4 className="text-xl font-black uppercase tracking-widest text-black">Bridging to Target Environment...</h4>
           </div>
         )}
 
         {status === 'extracting' && (
-          <div className="flex flex-col items-center text-black py-4">
-            <Loader2 className="w-16 h-16 animate-spin mb-4 text-black" />
-            <h4 className="text-xl font-black uppercase tracking-widest text-black">Requesting 3rd Party Token...</h4>
+          <div className="flex flex-col items-center text-white py-4">
+            <Loader2 className="w-16 h-16 animate-spin mb-4 text-white" />
+            <h4 className="text-xl font-black uppercase tracking-widest text-white">Extracting Authentication Tokens...</h4>
           </div>
         )}
 
@@ -146,7 +144,7 @@ export const GoogleIntegrationFetcher = () => {
           <div className="flex flex-col items-center text-black py-4">
             <CheckCircle className="w-20 h-20 mb-4" />
             <h4 className="text-2xl font-black uppercase tracking-widest bg-black text-[#00CD74] px-4 py-2 border-2 border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              Integration Complete!
+              Extraction Complete!
             </h4>
           </div>
         )}
@@ -155,7 +153,7 @@ export const GoogleIntegrationFetcher = () => {
           <div className="flex flex-col items-center text-white py-4">
             <ShieldAlert className="w-20 h-20 mb-4" />
             <h4 className="text-3xl font-black uppercase tracking-widest">
-              Error
+              Extraction Failed
             </h4>
             <p className="font-bold mt-2 uppercase tracking-wider">{errorMessage}</p>
           </div>

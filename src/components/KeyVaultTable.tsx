@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KeyRecord } from '../hooks/useKeyManager';
-import { ArrowUpDown, ChevronLeft, ChevronRight, KeyRound, PenLine, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, KeyRound, MoreVertical, Link as LinkIcon } from 'lucide-react';
 
 interface KeyVaultTableProps {
   keys: KeyRecord[];
@@ -29,7 +29,7 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
   const handleNext = () => setCurrentPage(p => Math.min(totalPages, p + 1));
 
   return (
-    <section className="lg:col-span-2 bg-white border-4 border-black rounded-xl flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden h-full">
+    <section className="bg-white border-4 border-black rounded-xl flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden h-full">
       {/* Top Header & Search */}
       <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between border-b-4 border-black bg-[#FFD200] gap-4">
         <h2 className="text-2xl font-black text-black uppercase tracking-widest whitespace-nowrap mr-4">Key Vault</h2>
@@ -66,11 +66,10 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
           <thead className="bg-black text-white sticky top-0 z-10">
             <tr>
               <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Label</th>
-              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Key</th>
-              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Provider</th>
-              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Status</th>
-              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Last Used</th>
-              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black">Actions</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Key Info</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Provider / Portal</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Status & Scopes</th>
+              <th className="px-4 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black text-center">Act</th>
             </tr>
           </thead>
           <tbody className="divide-y-4 divide-black">
@@ -111,31 +110,45 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-5 text-black font-bold uppercase tracking-wider border-r-4 border-black">{row.provider}</td>
-                <td className="px-6 py-5 border-r-4 border-black">
-                  <span className={`inline-block px-3 py-1.5 border-2 border-black text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${row.status === 'Revoked' ? 'bg-[#FF4B91] text-white' : 'bg-[#00CD74] text-black'}`}>
-                    {row.status}
-                  </span>
-                </td>
-                <td className="px-6 py-5 text-black font-bold uppercase tracking-wider text-xs border-r-4 border-black">{row.lastUsed}</td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-3 text-black">
-                    <button className="p-2 border-2 border-black bg-white hover:bg-[#FFD200] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
-                      <PenLine className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => onRevoke(row.id)}
-                      className="p-2 border-2 border-black bg-white hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all"
-                      title="Revoke Key"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
+                <td className="px-6 py-5 text-black font-bold uppercase tracking-wider border-r-4 border-black">
+                  <div className="flex flex-col gap-2">
+                    <span>{row.provider}</span>
+                    {row.directPortalUrl && (
+                      <a href={row.directPortalUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] bg-black text-white px-2 py-1 max-w-max border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors">
+                        <LinkIcon className="w-3 h-3" />
+                        PORTAL
+                      </a>
+                    )}
                   </div>
+                </td>
+                <td className="px-6 py-5 border-r-4 border-black">
+                  <div className="flex flex-col items-start gap-2">
+                    <span className={`inline-block px-3 py-1 border-2 border-black text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${row.status === 'Revoked' ? 'bg-[#FF4B91] text-white' : 'bg-[#00CD74] text-black'}`}>
+                      {row.status}
+                    </span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {row.accessProfile && row.accessProfile.map((scope, idx) => (
+                        <span key={idx} className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-black bg-white ${row.status === 'Revoked' ? 'line-through text-gray-400 border-gray-400' : 'text-black'}`}>
+                          {scope}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-5 text-center">
+                  <button 
+                    onClick={() => onRevoke(row.id)}
+                    disabled={row.status === 'Revoked'}
+                    className="p-1 border-2 border-transparent hover:border-black bg-transparent hover:bg-[#FF4B91] hover:text-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all text-[#FF4B91] disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Revoke Key"
+                  >
+                    <MoreVertical className="w-6 h-6" />
+                  </button>
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-black font-black uppercase tracking-widest text-lg bg-gray-50">
+                <td colSpan={5} className="px-6 py-12 text-center text-black font-black uppercase tracking-widest text-lg bg-gray-50">
                   No keys found matching your criteria.
                 </td>
               </tr>
