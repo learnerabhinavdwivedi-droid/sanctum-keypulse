@@ -1,9 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
+import { useKeyManager } from '../hooks/useKeyManager';
 import { 
   Bell, 
   HelpCircle, 
@@ -24,8 +24,14 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, identity }) => {
   const pathname = usePathname();
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { keys } = useKeyManager();
+  const [showAlertDropdown, setShowAlertDropdown] = useState(false);
   
+  // Track degraded keys
+  // For this mock, we assume usage is high if status is 'Revoked' or mock usage condition is met
+  const degradedKeys = keys.filter(k => k.status === 'Revoked');
+  const hasAlerts = degradedKeys.length > 0;
+
   const isActive = (path: string) => pathname === path;
 
   return (
@@ -90,40 +96,54 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, iden
           </h1>
           
           <div className="flex items-center gap-6">
-            <div className="relative cursor-pointer hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-[#FFD200] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+            <div className="relative">
+              <div 
+                className="w-12 h-12 bg-[#FFD200] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] cursor-pointer hover:-translate-y-1 transition-transform"
+                onClick={() => setShowAlertDropdown(!showAlertDropdown)}
+              >
                 <Bell className="w-6 h-6 text-black" />
               </div>
-              <span className="absolute -top-2 -right-2 bg-[#FF4B91] border-2 border-black text-white text-xs font-black w-6 h-6 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">3</span>
+              {hasAlerts && (
+                <span className="absolute -top-2 -right-2 bg-[#FF4B91] border-2 border-black text-white text-xs font-black w-6 h-6 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] pointer-events-none">
+                  {degradedKeys.length}
+                </span>
+              )}
+
+              {/* Alert Dropdown Card */}
+              {showAlertDropdown && (
+                <div className="absolute right-0 top-16 w-80 bg-white border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] z-50">
+                  <div className="p-4 border-b-4 border-black bg-[#FF4B91] text-white">
+                    <h4 className="font-black uppercase tracking-widest text-lg">Health Alerts</h4>
+                  </div>
+                  <div className="p-0 max-h-64 overflow-y-auto">
+                    {degradedKeys.length > 0 ? (
+                      degradedKeys.map(key => (
+                        <div key={key.id} className="p-4 border-b-2 border-black bg-white hover:bg-gray-100 transition-colors">
+                          <p className="font-black uppercase tracking-wide text-black">{key.label}</p>
+                          <p className="font-bold text-xs uppercase text-[#FF4B91] mt-1">STATUS: {key.status}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 bg-white text-center">
+                        <p className="font-black uppercase tracking-wide text-gray-500">All Systems Nominal</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             
-            {/* Clerk User Passport Badge */}
+            {/* Passport Badge (Anna Platform Stand-In) */}
             <div className="flex items-center gap-3 cursor-pointer bg-white border-4 border-black px-4 py-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all">
-              {isLoaded && isSignedIn ? (
-                <>
-                  <div className="flex flex-col mr-2 text-right">
-                    <span className="text-[10px] font-black text-black uppercase tracking-widest leading-none">Developer</span>
-                    <span className="text-sm font-bold text-black mt-1">
-                      {user?.primaryEmailAddress?.emailAddress}
-                    </span>
-                  </div>
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox: "w-8 h-8 rounded-none border-2 border-black"
-                      }
-                    }}
-                  />
-                </>
-              ) : null}
-              {isLoaded && !isSignedIn ? (
-                <SignInButton mode="modal">
-                  <button className="flex items-center gap-2 text-black font-black uppercase text-sm">
-                    <UserCheck className="w-5 h-5" />
-                    Sign In
-                  </button>
-                </SignInButton>
-              ) : null}
+              <div className="flex flex-col mr-2 text-right">
+                <span className="text-[10px] font-black text-black uppercase tracking-widest leading-none">Developer</span>
+                <span className="text-sm font-bold text-black mt-1">
+                  learnerabhinavdwivedi@gmail.com
+                </span>
+              </div>
+              <div className="w-8 h-8 bg-black border-2 border-black flex items-center justify-center">
+                <UserCheck className="w-4 h-4 text-white" />
+              </div>
             </div>
 
             <div className="w-1 h-12 bg-black mx-2"></div>

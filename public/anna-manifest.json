@@ -1,21 +1,10 @@
 {
-  "name": "KeyGuard AI",
-  "description": "API Key Health & Usage Assistant",
+  "name": "KeyPulse Security Hub",
+  "appId": "keypulse-security-hub",
+  "developer": "learnerabhinavdwivedi@gmail.com",
   "permissions": {
-    "storage": true,
-    "llm": true,
-    "chat": true,
-    "agent": true,
-    "tools": true
-  },
-  "executors": [
-    {
-      "name": "revoke_api_key",
-      "description": "Instantly revokes an active API key to prevent unauthorized access.",
-      "schema": {
-        "keyId": "string",
-        "reason": "string"
-      }
-    }
-  ]
+    "storage": "visibility",
+    "llm": "visibility",
+    "agent": "visibility"
+  }
 }

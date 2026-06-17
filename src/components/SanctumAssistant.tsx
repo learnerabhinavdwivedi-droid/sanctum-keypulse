@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Minus, X, Image as ImageIcon, Smile, Paperclip, Send, ShieldCheck } from 'lucide-react';
-import { useChatAssistant } from '../hooks/useChatAssistant';
 import { KeyRecord } from '../hooks/useKeyManager';
 
 interface SanctumAssistantProps {
@@ -8,14 +7,40 @@ interface SanctumAssistantProps {
   onRevokeKey?: (id: string) => void;
 }
 
-export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevokeKey }) => {
+interface Message {
+  id: string;
+  role: 'user' | 'ai';
+  text: string;
+}
+
+export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys }) => {
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [inputValue, setInputValue] = useState('');
+  const [chatHistory, setChatHistory] = useState<Message[]>([
+    { id: 'initial', role: 'ai', text: 'I am the Sanctum Security Agent. My systems are ready.' }
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  
-  const { chatHistory, sendMessage, isTyping, clearChat, sendToolResult } = useChatAssistant(keys);
 
-  const [executedTools, setExecutedTools] = useState<Set<string>>(new Set());
+  // Initialize Anna Agent Session
+  useEffect(() => {
+    let mounted = true;
+    const initAgent = async () => {
+      if (typeof window !== 'undefined' && window.Anna) {
+        try {
+          const id = await window.Anna.agent.start({ context: JSON.stringify(keys) });
+          if (mounted) {
+            setSessionId(id);
+          }
+        } catch (e) {
+          console.error("Failed to start Anna agent session", e);
+        }
+      }
+    };
+    initAgent();
+    return () => { mounted = false; };
+  }, [keys]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -24,10 +49,29 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
     }
   }, [chatHistory, isTyping, isChatOpen]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim() || isTyping) return;
-    sendMessage(inputValue);
+    
+    const userMessage = inputValue;
     setInputValue('');
+    
+    setChatHistory(prev => [...prev, { id: Date.now().toString(), role: 'user', text: userMessage }]);
+    setIsTyping(true);
+
+    try {
+      if (typeof window !== 'undefined' && window.Anna && sessionId) {
+        const responseText = await window.Anna.agent.sendMessage(sessionId, userMessage);
+        setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'ai', text: responseText }]);
+      } else {
+        // Mock fallback if Anna SDK isn't present
+        await new Promise(r => setTimeout(r, 1500));
+        setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'ai', text: `Anna Platform SDK missing. Fallback response for: "${userMessage}"` }]);
+      }
+    } catch (e) {
+      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'ai', text: "Error: Failed to process tokens." }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -43,10 +87,10 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
         {/* Chat Header */}
         <div className="h-14 flex items-center justify-between px-4 border-b-4 border-black bg-[#00E5FF] rounded-t-xl cursor-move">
           <h3 className="text-sm font-black text-black uppercase flex items-center gap-2">
-            Anna AI
+            Sanctum Agent
           </h3>
           <div className="flex items-center gap-2 text-black">
-            <button className="text-[10px] font-black uppercase bg-white px-2 py-1 border-2 border-black rounded hover:bg-gray-100 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" onClick={clearChat}>Clear</button>
+            <button className="text-[10px] font-black uppercase bg-white px-2 py-1 border-2 border-black rounded hover:bg-gray-100 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" onClick={() => setChatHistory([{ id: 'initial', role: 'ai', text: 'History Cleared. Systems ready.' }])}>Clear</button>
             <button className="w-6 h-6 flex items-center justify-center bg-white border-2 border-black rounded hover:bg-gray-100 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" onClick={() => setIsChatOpen(false)}><Minus className="w-4 h-4" /></button>
             <button className="w-6 h-6 flex items-center justify-center bg-[#FF4B91] text-white border-2 border-black rounded hover:bg-[#D43F7A] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" onClick={() => setIsChatOpen(false)}><X className="w-4 h-4" /></button>
           </div>
@@ -61,48 +105,16 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
                   <ShieldCheck className="w-4 h-4 text-black" />
                 </div>
               )}
-              {msg.role === 'tool_call' && msg.toolCall ? (
-                <div className="flex flex-col max-w-[95%] w-full">
-                  <div className="bg-[#FF4B91] border-4 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
-                    <p className="font-black text-sm uppercase tracking-tight mb-3">⚠️ AGENT INTENT: Revoke Key</p>
-                    <p className="text-xs font-bold mb-4">Target ID: {msg.toolCall.input.keyId}</p>
-                    <div className="flex gap-2">
-                      <button 
-                        disabled={executedTools.has(msg.toolCall.id)}
-                        onClick={() => {
-                          setExecutedTools(prev => new Set(prev).add(msg.toolCall!.id));
-                          if (onRevokeKey) onRevokeKey(msg.toolCall!.input.keyId);
-                          sendToolResult(msg.toolCall!.id, "Key revoked successfully. Your vault is secure.");
-                        }}
-                        className="flex-1 bg-[#00CD74] border-2 border-black font-black uppercase text-[10px] py-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:shadow-none transition-all"
-                      >
-                        AUTHORIZE
-                      </button>
-                      <button 
-                        disabled={executedTools.has(msg.toolCall.id)}
-                        onClick={() => {
-                          setExecutedTools(prev => new Set(prev).add(msg.toolCall!.id));
-                          sendToolResult(msg.toolCall!.id, "User denied the revocation request.");
-                        }}
-                        className="flex-1 bg-white border-2 border-black font-black uppercase text-[10px] py-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:shadow-none transition-all"
-                      >
-                        DENY
-                      </button>
-                    </div>
-                  </div>
+              <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : ''} max-w-[80%]`}>
+                <span className="text-[10px] font-black text-black uppercase mb-1">{msg.role === 'user' ? 'You' : 'Sanctum'}</span>
+                <div className={`text-xs p-3 font-bold leading-relaxed border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                  msg.role === 'user' 
+                    ? 'bg-[#FFD200] text-black rounded-tl-xl rounded-bl-xl rounded-tr-sm' 
+                    : 'bg-white text-black rounded-tr-xl rounded-br-xl rounded-tl-sm'
+                }`}>
+                  {msg.text}
                 </div>
-              ) : (
-                <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : ''} max-w-[80%]`}>
-                  <span className="text-[10px] font-black text-black uppercase mb-1">{msg.role === 'user' ? 'You' : 'Anna AI'}</span>
-                  <div className={`text-xs p-3 font-bold leading-relaxed border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
-                    msg.role === 'user' 
-                      ? 'bg-[#FFD200] text-black rounded-tl-xl rounded-bl-xl rounded-tr-sm' 
-                      : 'bg-white text-black rounded-tr-xl rounded-br-xl rounded-tl-sm'
-                  }`}>
-                    {msg.text}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           ))}
           {isTyping && (
@@ -111,11 +123,11 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
                 <ShieldCheck className="w-4 h-4 text-black" />
               </div>
               <div className="flex flex-col max-w-[80%]">
-                <span className="text-[10px] font-black text-black uppercase mb-1">Anna AI</span>
+                <span className="text-[10px] font-black text-black uppercase mb-1">Sanctum</span>
                 <div className="text-xs p-3 font-bold leading-relaxed border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white text-black rounded-tr-xl rounded-br-xl rounded-tl-sm flex items-center gap-1">
-                  <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2 h-2 bg-black rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-black rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-black rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -132,7 +144,7 @@ export const SanctumAssistant: React.FC<SanctumAssistantProps> = ({ keys, onRevo
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isTyping}
-              placeholder={isTyping ? "WAITING FOR RESPONSE..." : "ASK ME ANYTHING..."}
+              placeholder={isTyping ? "PROCESSING TOKENS..." : "ASK ME ANYTHING..."}
               className="w-full bg-gray-100 border-2 border-black text-black font-bold placeholder-gray-500 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 transition-all uppercase"
             />
           </div>

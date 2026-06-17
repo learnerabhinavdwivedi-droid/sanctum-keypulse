@@ -76,13 +76,39 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
           <tbody className="divide-y-4 divide-black">
             {currentKeys.length > 0 ? currentKeys.map((row) => (
               <tr key={row.id} className="hover:bg-[#00E5FF]/10 transition-colors group">
-                <td className="px-6 py-5 text-black font-black uppercase tracking-wide border-r-4 border-black">{row.label}</td>
+                <td className="px-6 py-5 text-black font-black uppercase tracking-wide border-r-4 border-black">
+                  <div className="flex items-center justify-between gap-4">
+                    <span>{row.label}</span>
+                    <button 
+                      onClick={() => navigator.clipboard.writeText(row.label)}
+                      className="p-1.5 border-2 border-black bg-white hover:bg-[#FFD200] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex-shrink-0"
+                      title="Copy Env Name"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </td>
                 <td className="px-6 py-5 border-r-4 border-black bg-gray-50">
                   <div className="flex items-center justify-between gap-4">
                     <span className="font-mono text-black font-bold tracking-widest text-sm bg-white px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                       {row.mask}
                     </span>
-                    <KeyRound className="w-5 h-5 text-black flex-shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          if (row.rawKey && row.rawKey !== 'ERROR_DECRYPTING') {
+                            navigator.clipboard.writeText(row.rawKey);
+                          } else {
+                            alert('Cannot copy key: ' + row.rawKey);
+                          }
+                        }}
+                        className="p-1.5 border-2 border-black bg-white hover:bg-[#00CD74] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex-shrink-0"
+                        title="Copy Raw Key"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                      <KeyRound className="w-5 h-5 text-black flex-shrink-0" />
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-5 text-black font-bold uppercase tracking-wider border-r-4 border-black">{row.provider}</td>

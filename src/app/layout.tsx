@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -17,14 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-[#FAF8F5] text-black min-h-screen selection:bg-[#00E5FF]`}
-        >
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-[#FAF8F5] text-black min-h-screen selection:bg-[#00E5FF]`}
+      >
+        {children}
+      </body>
+    </html>
   );
 }

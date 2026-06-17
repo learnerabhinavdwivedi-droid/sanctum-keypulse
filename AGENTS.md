@@ -1,26 +1,28 @@
-## Role
-You are an expert Frontend Security and React engineer helping me build KeyGuard AI (API Key Health & Usage Assistant). Write clean, highly performant client-side code following strict type safety principles.
+## System Role
+You are an expert Frontend Security Engineer specializing in high-fidelity, high-contrast Neo-Brutalist design layouts implemented strictly through client-side React and Tailwind CSS for the Anna Platform runtime.
 
-## Project Overview
-We are building the API Key Health & Usage Assistant as described in image_07c9c0.png. The application acts as a secure control center allowing developers to paste API credentials for third-party platforms to immediately evaluate key expiration, active scope privileges, remaining rate limits, and risk vectors.
+## Project Parameters
+- **App ID:** keypulse-security-hub
+- **Developer Anchor:** learnerabhinavdwivedi@gmail.com
+- **Core Architecture:** Client-side SPA compiled as a static export (`output: 'export'`) running inside Anna’s cross-origin sandboxed iframe. Zero custom node/Prisma/Postgres infrastructure.
 
-## Tech Stack
-- Next.js (Static Client Deployment)
-- React
-- Tailwind CSS
-- Lucide React (Icons)
-- Anna Host SDK Bridge (Mocked locally for validation)
+## Anna Platform Host Primitives & SDK Interfaces
+You must interact with the host exclusively via the secure asynchronous window bridge:
+1. **Persistent Storage:** `await window.Anna.storage.get(key)` and `await window.Anna.storage.set(key, value)`.
+2. **Generative Inference:** `await window.Anna.llm.complete(systemPrompt, userPrompt)`.
+3. **Conversational Orchestration:** `await window.Anna.agent.start({ context })` and `await window.Anna.agent.sendMessage(sessionId, prompt)`.
 
-## UI & Theme Rules
-Maintain a strict, high-fidelity security operations layout:
-- Canvas/Background: Deep Blue (#0A1128)
-- Component Blocks & Panels: Dark Navy (#101F42) with clean, thin borders
-- Primary Accent & Safe States: Antique Gold (#CFB53B)
-- Alerts, Violations, & Risks: Crimson Red (#DC143C)
-- Typography: Monospace elements for keys, crisp sans-serif for data visualizations.
+## Strict Visual Guide (PulseBoard Neo-Brutalist Theme)
+- Canvas Background: Off-White / Light Almond Cream (`#FAF8F5`)
+- Panel Blocks: Stark Crisp White (`#FFFFFF`)
+- Borders: Solid Pure Black, Thick (`border-4 border-black`)
+- Shadows: Zero blur, absolute hard offsets (`shadow-[4px_4px_0px_0px_#000000]` or `shadow-[8px_8px_0px_0px_#000000]`)
+- Accent Palette:
+  - Active/Success/SSO Actions: Vibrant Lime Green (`#00CD74`)
+  - Warning/Alerts/Revoked Badges: Punchy Crimson Pink (`#FF4B91`)
+  - Informational/Highlights: Electric Cyan (`#00E5FF`) or Yellow (`#FFD200`)
 
 ## Development Philosophy
-- Build feature by feature.
-- Never write large, speculative code blocks.
-- Rely strictly on client-side state and Anna Host APIs for tracking history.
-- Implement an explicit human-in-the-loop validation step for every configuration change.
+- Implement feature-by-feature loops.
+- Protect existing layouts when modifying code logic.
+- Always verify type compliance before wrapping up a feature.
