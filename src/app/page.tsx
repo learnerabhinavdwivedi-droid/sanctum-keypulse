@@ -1,211 +1,128 @@
 "use client";
 
 import React from 'react';
-import { 
-  Search, 
-  Bell, 
-  HelpCircle, 
-  Settings, 
-  LogOut, 
-  LayoutDashboard, 
-  KeyRound, 
-  ActivitySquare, 
-  FileText, 
-  BookOpen, 
-  Library, 
-  ChevronDown,
-  ShieldCheck
-} from 'lucide-react';
-
+import Link from 'next/link';
 import { useKeyManager } from '../hooks/useKeyManager';
-import { KeyVaultTable } from '../components/KeyVaultTable';
-import { QuickKeyGeneration } from '../components/QuickKeyGeneration';
-import { DiagnosticHub } from '../components/DiagnosticHub';
+import { DashboardLayout } from '../components/DashboardLayout';
 import { SanctumAssistant } from '../components/SanctumAssistant';
+import { KeyRound, ActivitySquare, FileText, AlertTriangle, CheckSquare, Zap } from 'lucide-react';
 
-// --- Anna Mock Types ---
-declare global {
-  interface Window {
-    Anna?: {
-      storage: {
-        get: (key: string) => Promise<any>;
-        set: (key: string, value: any) => Promise<void>;
-      }
-    };
-  }
-}
+export default function DashboardHub() {
+  const { keys, revokeKey } = useKeyManager();
 
-if (typeof window !== "undefined" && !window.Anna) {
-  window.Anna = {
-    storage: {
-      get: async (key: string) => JSON.parse(localStorage.getItem(key) || 'null'),
-      set: async (key: string, value: any) => localStorage.setItem(key, JSON.stringify(value))
-    }
-  };
-}
-
-export default function KeyManagementHub() {
-  const { keys, generateKeys, createSingleKey, revokeKey } = useKeyManager();
+  const totalKeys = keys.length;
+  const activeKeys = keys.filter(k => k.status !== 'Revoked').length;
+  const revokedKeys = keys.filter(k => k.status === 'Revoked').length;
+  const recentKeys = keys.slice(0, 3);
 
   return (
-    <div className="flex h-screen bg-[#111625] text-slate-300 font-sans overflow-hidden selection:bg-[#CFB53B]/30">
-      
-      {/* Sidebar */}
-      <aside className="w-[260px] bg-[#161C2D] border-r border-slate-800/50 flex flex-col flex-shrink-0 z-20">
-        <div className="h-20 flex items-center px-6 border-b border-slate-800/50">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-8 h-8 text-[#CFB53B]" />
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-white tracking-wide leading-tight">SANCTUM</span>
-              <span className="text-sm font-semibold text-slate-400 tracking-wider leading-tight">KEYPULSE</span>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="font-medium text-sm">Dashboard Overview</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-[#1E2538] text-[#CFB53B] rounded-lg border border-[#CFB53B]/20 shadow-[inset_4px_0_0_0_#CFB53B] transition-colors">
-            <KeyRound className="w-5 h-5" />
-            <span className="font-medium text-sm">Key Management Hub</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <ActivitySquare className="w-5 h-5" />
-            <span className="font-medium text-sm">Diagnostic Center</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <FileText className="w-5 h-5" />
-            <span className="font-medium text-sm">Health Audit Reports</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <BookOpen className="w-5 h-5" />
-            <span className="font-medium text-sm">Onboarding Guides</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <Library className="w-5 h-5" />
-            <span className="font-medium text-sm">Documentation</span>
-          </a>
-        </nav>
-
-        <div className="p-4 space-y-1 border-t border-slate-800/50">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <Settings className="w-5 h-5" />
-            <span className="font-medium text-sm">Settings</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium text-sm">Logout</span>
-          </a>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        
-        {/* Top Header */}
-        <header className="h-20 flex items-center justify-between px-8 bg-[#161C2D] border-b border-slate-800/50 flex-shrink-0 z-10">
-          <h1 className="text-xl font-bold text-white tracking-wide">Key Management Hub</h1>
+    <>
+      <DashboardLayout>
+        <div className="h-full max-w-7xl mx-auto flex flex-col gap-8 pb-12">
           
-          <div className="flex items-center gap-6">
-            <div className="relative cursor-pointer">
-              <Bell className="w-5 h-5 text-slate-300 hover:text-white transition-colors" />
-              <span className="absolute -top-1.5 -right-1.5 bg-[#DC143C] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-[#161C2D]">8</span>
+          {/* Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b-8 border-black pb-6 gap-4">
+            <div>
+              <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-black">Operations Center</h1>
+              <p className="text-lg font-bold text-black uppercase tracking-widest mt-2">Real-time telemetry and infrastructure overview</p>
             </div>
-            
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 overflow-hidden">
-                <img src="https://i.pravatar.cc/100?img=11" alt="User" className="w-full h-full object-cover" />
+            <div className="bg-[#00CD74] text-black px-6 py-3 font-black text-sm tracking-widest border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
+              <span className="w-3 h-3 bg-black animate-pulse"></span>
+              SYSTEM OPTIMAL
+            </div>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-[#00E5FF] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-transform flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-black uppercase tracking-widest">Total Keys</h3>
+                <KeyRound className="w-8 h-8 text-black" />
               </div>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <span className="text-7xl font-black tracking-tighter">{totalKeys}</span>
             </div>
-
-            <div className="w-px h-6 bg-slate-700/50"></div>
-            
-            <button className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors">
-              <HelpCircle className="w-4 h-4" />
-              Global help
-              <ChevronDown className="w-4 h-4" />
-            </button>
-            
-            <button className="px-4 py-2 text-sm font-medium text-[#DC143C] border border-[#DC143C]/50 hover:bg-[#DC143C]/10 rounded-md transition-colors">
-              Troubleshoot
-            </button>
+            <div className="bg-[#FFD200] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-transform flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-black uppercase tracking-widest">Active Keys</h3>
+                <CheckSquare className="w-8 h-8 text-black" />
+              </div>
+              <span className="text-7xl font-black tracking-tighter">{activeKeys}</span>
+            </div>
+            <div className="bg-[#FF4B91] text-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-transform flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-black uppercase tracking-widest text-white">Revoked</h3>
+                <AlertTriangle className="w-8 h-8 text-white" />
+              </div>
+              <span className="text-7xl font-black tracking-tighter">{revokedKeys}</span>
+            </div>
           </div>
-        </header>
 
-        {/* Search Bar Placeholder (Actual search moved to KeyVaultTable) */}
-        <div className="px-8 py-6 flex-shrink-0">
-          <div className="relative w-full opacity-50 cursor-not-allowed">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-            <input 
-              type="text" 
-              disabled
-              placeholder="Global search disabled. Use vault search below." 
-              className="w-full bg-[#1A2235] border border-slate-700/50 text-slate-200 placeholder-slate-500 rounded-lg pl-12 pr-4 py-3.5 focus:outline-none transition-colors shadow-inner text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Dashboard Grid */}
-        <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-[600px]">
+          {/* Quick Actions & Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
             
-            {/* Left Column: Key Vault Table */}
-            <KeyVaultTable 
-              keys={keys} 
-              onRevoke={revokeKey} 
-              onCreateSingleKey={createSingleKey} 
-            />
-
-            {/* Right Column: Utilities */}
-            <div className="flex flex-col gap-6 h-full">
+            {/* Quick Actions */}
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-4 bg-black text-white p-4 shadow-[4px_4px_0px_0px_rgba(255,210,0,1)]">
+                <Zap className="w-8 h-8 text-[#FFD200]" />
+                <h3 className="text-2xl font-black uppercase tracking-widest">Quick Actions</h3>
+              </div>
               
-              <QuickKeyGeneration onGenerate={generateKeys} />
-
-              {/* Provider Overview Chart */}
-              <section className="bg-[#1A2235] border border-slate-800/80 rounded-xl p-6 shadow-xl flex-1 flex flex-col relative overflow-hidden min-h-[200px]">
-                <h2 className="text-base font-bold text-white mb-6">Provider Overview</h2>
-                
-                <div className="absolute top-16 right-12 flex items-center gap-2 bg-[#1A2235] border border-slate-700/50 px-3 py-1.5 rounded-lg z-10 shadow-lg">
-                  <div className="w-3 h-3 bg-[#CFB53B] rounded-sm"></div>
-                  <span className="text-xs text-slate-300">Provider Chart</span>
-                </div>
-
-                <div className="flex-1 w-full relative mt-4">
-                  <svg className="w-full h-full preserve-3d" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#CFB53B" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#CFB53B" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-                    <path 
-                      d="M0,80 Q15,40 30,60 T60,30 T85,55 T100,45 L100,100 L0,100 Z" 
-                      fill="url(#goldGradient)"
-                      className="animate-pulse"
-                    />
-                    <path 
-                      d="M0,80 Q15,40 30,60 T60,30 T85,55 T100,45" 
-                      fill="none" 
-                      stroke="#CFB53B" 
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </div>
-              </section>
-
-              <DiagnosticHub />
-
+              <div className="flex flex-col gap-4">
+                <Link href="/key-vault" className="bg-white border-4 border-black p-6 flex items-center justify-between hover:bg-gray-100 transition-colors shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 group">
+                  <div className="flex items-center gap-4">
+                    <KeyRound className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+                    <span className="text-xl font-black uppercase tracking-widest">Manage Key Vault</span>
+                  </div>
+                  <span className="text-2xl font-black">&rarr;</span>
+                </Link>
+                <Link href="/diagnostics" className="bg-white border-4 border-black p-6 flex items-center justify-between hover:bg-gray-100 transition-colors shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 group">
+                  <div className="flex items-center gap-4">
+                    <ActivitySquare className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+                    <span className="text-xl font-black uppercase tracking-widest">Run Diagnostics</span>
+                  </div>
+                  <span className="text-2xl font-black">&rarr;</span>
+                </Link>
+                <Link href="/reports" className="bg-white border-4 border-black p-6 flex items-center justify-between hover:bg-gray-100 transition-colors shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 group">
+                  <div className="flex items-center gap-4">
+                    <FileText className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+                    <span className="text-xl font-black uppercase tracking-widest">View Global Reports</span>
+                  </div>
+                  <span className="text-2xl font-black">&rarr;</span>
+                </Link>
+              </div>
             </div>
+
+            {/* Recent Activity */}
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-4 bg-black text-white p-4 shadow-[4px_4px_0px_0px_rgba(0,205,116,1)]">
+                <ActivitySquare className="w-8 h-8 text-[#00CD74]" />
+                <h3 className="text-2xl font-black uppercase tracking-widest">Recent Keys</h3>
+              </div>
+              
+              <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] divide-y-4 divide-black">
+                {recentKeys.length > 0 ? recentKeys.map(key => (
+                  <div key={key.id} className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-[#00E5FF]/10 transition-colors">
+                    <div>
+                      <p className="text-lg font-black uppercase tracking-widest">{key.label}</p>
+                      <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">{key.provider} • {key.mask}</p>
+                    </div>
+                    <span className={`px-3 py-1 border-2 border-black font-black text-xs tracking-widest uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${key.status === 'Revoked' ? 'bg-[#FF4B91] text-white' : 'bg-[#00CD74] text-black'}`}>
+                      {key.status}
+                    </span>
+                  </div>
+                )) : (
+                  <div className="p-8 text-center text-lg font-black uppercase tracking-widest text-gray-500">
+                    No recent activity.
+                  </div>
+                )}
+              </div>
+            </div>
+
           </div>
         </div>
+      </DashboardLayout>
 
-      </main>
-
-      <SanctumAssistant keys={keys} />
-
-    </div>
+      <SanctumAssistant keys={keys} onRevokeKey={revokeKey} />
+    </>
   );
 }

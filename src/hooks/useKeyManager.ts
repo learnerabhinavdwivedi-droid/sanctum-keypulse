@@ -1,99 +1,114 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface KeyRecord {
   id: string;
   label: string;
-  keyValue: string;
+  mask: string; // The UI-safe mask replacing keyValue
   provider: string;
-  portalUrl: string;
   status: string;
   lastUsed: string;
+  accessProfile: string[];
 }
 
 export const useKeyManager = () => {
   const [keys, setKeys] = useState<KeyRecord[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load on mount
-  useEffect(() => {
-    const loadKeys = async () => {
-      try {
-        let data = null;
-        if (typeof window !== 'undefined' && window.Anna?.storage) {
-          data = await window.Anna.storage.get('sanctum_keys');
-        } else if (typeof window !== 'undefined') {
-          data = JSON.parse(localStorage.getItem('sanctum_keys') || 'null');
-        }
-        
-        if (data && Array.isArray(data) && data.length > 0) {
-          setKeys(data);
-        } else {
-          // Initialize with some mock data if empty for demo purposes
-          setKeys(Array.from({ length: 8 }).map((_, i) => ({
-            id: i.toString(),
-            label: `Google AI Key #${i + 1}`,
-            keyValue: `gsk-••••••••••••${Math.random().toString(36).substring(2, 6)}`,
-            provider: "Google",
-            portalUrl: "https://console.cloud.google.com/",
-            status: "Active",
-            lastUsed: new Date().toLocaleDateString()
-          })));
-        }
-      } catch (e) {
-        console.error("Failed to load keys", e);
-      } finally {
-        setIsLoaded(true);
+  const fetchKeys = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/keys');
+      if (res.ok) {
+        const data = await res.json();
+        setKeys(data.keys || []);
+      } else if (res.status === 401) {
+        // Expected when logged out, do not blast the console
+        setKeys([]);
+      } else {
+        console.error('Failed to fetch keys', await res.text());
       }
-    };
-    loadKeys();
+    } catch (e) {
+      console.error('Error fetching keys', e);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Save when keys change
   useEffect(() => {
-    if (!isLoaded) return;
-    const saveKeys = async () => {
-      try {
-        if (typeof window !== 'undefined' && window.Anna?.storage) {
-          await window.Anna.storage.set('sanctum_keys', keys);
-        } else if (typeof window !== 'undefined') {
-          localStorage.setItem('sanctum_keys', JSON.stringify(keys));
-        }
-      } catch (e) {
-        console.error("Failed to save keys", e);
+    fetchKeys();
+  }, [fetchKeys]);
+
+  const addKey = async (label: string, rawKey: string, provider: string = 'Custom', accessScopes: string[] = ['api.read']) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          label,
+          provider,
+          rawKey,
+          accessScopes,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setKeys(prevKeys => [data.key, ...prevKeys]);
+      } else {
+        console.error('Failed to add key', await res.text());
       }
-    };
-    saveKeys();
-  }, [keys, isLoaded]);
-
-  const generateKeys = (count: number, prefix: string, provider: string = "Provider") => {
-    const newKeys: KeyRecord[] = Array.from({ length: count }).map(() => ({
-      id: Math.random().toString(36).substring(2, 9),
-      label: `${provider} Key #${Math.floor(Math.random() * 1000)}`,
-      keyValue: `${prefix}${Math.random().toString(36).substring(2, 12)}`,
-      provider: provider,
-      portalUrl: `https://www.sanctum/ke/${Math.random().toString(36).substring(2, 8)}`,
-      status: "Active",
-      lastUsed: new Date().toLocaleDateString()
-    }));
-    setKeys(prev => [...newKeys, ...prev]);
+    } catch (e) {
+      console.error('Error adding key', e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const createSingleKey = () => {
-    const newKey: KeyRecord = {
-      id: Math.random().toString(36).substring(2, 9),
-      label: `Manual Key #${Math.floor(Math.random() * 1000)}`,
-      keyValue: `sk-${Math.random().toString(36).substring(2, 12)}`,
-      provider: "Custom",
-      portalUrl: `https://www.sanctum/ke/custom`,
-      status: "Active",
-      lastUsed: new Date().toLocaleDateString()
-    };
-    setKeys(prev => [newKey, ...prev]);
+  const deleteKey = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/keys/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setKeys(prevKeys => prevKeys.filter(k => k.id !== id));
+      } else {
+        console.error('Failed to delete key', await res.text());
+      }
+    } catch (e) {
+      console.error('Error deleting key', e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const revokeKey = (id: string) => {
-    setKeys(prev => prev.map(k => k.id === id ? { ...k, status: 'Revoked' } : k));
+  const revokeKey = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/keys/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'REVOKED' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setKeys(prevKeys => prevKeys.map(k => k.id === id ? data.key : k));
+      } else {
+        console.error('Failed to revoke key', await res.text());
+      }
+    } catch (e) {
+      console.error('Error revoking key', e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return { keys, generateKeys, createSingleKey, revokeKey };
+  const appendKey = useCallback((newKey: KeyRecord) => {
+    setKeys(prevKeys => [newKey, ...prevKeys]);
+  }, []);
+
+  // We remove bulk generate as it shouldn't exist in production without explicit endpoints
+
+  return { keys, addKey, appendKey, deleteKey, revokeKey, isLoading, refreshKeys: fetchKeys };
 };

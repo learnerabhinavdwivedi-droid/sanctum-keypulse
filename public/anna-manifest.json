@@ -4,6 +4,18 @@
   "permissions": {
     "storage": true,
     "llm": true,
-    "chat": true
-  }
+    "chat": true,
+    "agent": true,
+    "tools": true
+  },
+  "executors": [
+    {
+      "name": "revoke_api_key",
+      "description": "Instantly revokes an active API key to prevent unauthorized access.",
+      "schema": {
+        "keyId": "string",
+        "reason": "string"
+      }
+    }
+  ]
 }

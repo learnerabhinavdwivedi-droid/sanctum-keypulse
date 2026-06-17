@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id // mapped directly to Clerk's userId
+  email     String   @unique
+  createdAt DateTime @default(now())
+  apiKeys   ApiKey[]
+}
+
+
+
+model ApiKey {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label        String        // e.g., "Production OpenAI Key"
+  provider     String        // e.g., "OPENAI", "GITHUB", "AWS", "STRIPE"
+  encryptedKey String        // storing the AES-256-GCM encrypted ciphertext
+  iv           String        // initialization vector needed for decryption
+  authTag      String        // authentication tag verifying ciphertext integrity
+  mask         String        // e.g., "sk-pro...9bxc" for UI rendering
+  status       String        @default("ACTIVE")
+  lastUsed     DateTime      @default(now())
+  accessScopes AccessScope[]
+}
+
+model AccessScope {
+  id       String @id @default(uuid())
+  apiKeyId String
+  apiKey   ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  scope    String // e.g. "billing.read"
+}

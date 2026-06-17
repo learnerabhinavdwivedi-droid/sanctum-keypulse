@@ -17,7 +17,7 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
   const filteredKeys = keys.filter(k => 
     k.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
     k.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    k.keyValue.toLowerCase().includes(searchQuery.toLowerCase())
+    k.mask.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Pagination logic
@@ -29,89 +29,77 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
   const handleNext = () => setCurrentPage(p => Math.min(totalPages, p + 1));
 
   return (
-    <section className="lg:col-span-2 bg-[#1A2235] border border-slate-800/80 rounded-xl flex flex-col shadow-xl overflow-hidden h-full">
+    <section className="lg:col-span-2 bg-white border-4 border-black rounded-xl flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden h-full">
       {/* Top Header & Search */}
-      <div className="p-6 flex items-center justify-between border-b border-slate-800/80">
-        <h2 className="text-lg font-bold text-white whitespace-nowrap mr-4">Key Vault</h2>
+      <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between border-b-4 border-black bg-[#FFD200] gap-4">
+        <h2 className="text-2xl font-black text-black uppercase tracking-widest whitespace-nowrap mr-4">Key Vault</h2>
         
-        <div className="flex-1 max-w-md mx-4">
+        <div className="flex-1 w-full max-w-md mx-0 md:mx-4">
           <input 
             type="text" 
-            placeholder="Search vault..." 
+            placeholder="SEARCH VAULT..." 
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setCurrentPage(1); // Reset page on search
             }}
-            className="w-full bg-[#111625] border border-slate-700/50 text-slate-200 placeholder-slate-500 rounded-lg px-4 py-2 focus:outline-none focus:border-[#CFB53B]/50 transition-colors shadow-inner text-sm"
+            className="w-full bg-white border-4 border-black text-black placeholder-gray-500 rounded-none px-4 py-3 font-black uppercase tracking-widest focus:outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all text-sm"
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:text-white bg-slate-800/30 hover:bg-slate-800/50 rounded-lg border border-slate-700/50 transition-colors">
-            <ArrowUpDown className="w-4 h-4" />
-            Sorting Keys
+        <div className="flex items-center gap-4 w-full md:w-auto mt-2 md:mt-0">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 text-sm font-black text-black uppercase tracking-widest bg-white hover:bg-gray-200 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+            <ArrowUpDown className="w-5 h-5" />
+            Sort
           </button>
           <button 
             onClick={onCreateSingleKey}
-            className="px-5 py-2 text-sm font-bold text-[#111625] bg-[#CFB53B] hover:bg-[#E0C64C] rounded-lg transition-colors shadow-[0_0_15px_rgba(207,181,59,0.15)]"
+            className="flex-1 md:flex-none px-6 py-3 text-sm font-black text-white uppercase tracking-widest bg-[#FF4B91] hover:bg-[#D43F7A] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
             Create Key
           </button>
         </div>
       </div>
 
-      <div className="px-6 py-3 flex items-center justify-end text-xs text-slate-400 gap-4">
-        <span>Page {currentPage} of {totalPages || 1}</span>
-        <div className="flex gap-1">
-          <button onClick={handlePrev} disabled={currentPage === 1} className="p-1 hover:text-white disabled:opacity-50"><ChevronLeft className="w-4 h-4" /></button>
-          <button onClick={handleNext} disabled={currentPage >= totalPages} className="p-1 hover:text-white disabled:opacity-50"><ChevronRight className="w-4 h-4" /></button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-auto custom-scrollbar min-h-0">
-        <table className="w-full text-sm text-left relative">
-          <thead className="text-xs text-slate-500 bg-[#161C2D]/50 sticky top-0 z-10 border-y border-slate-800/80 backdrop-blur-sm">
+      <div className="flex-1 overflow-auto custom-scrollbar min-h-0 bg-white">
+        <table className="w-full text-left relative border-collapse">
+          <thead className="bg-black text-white sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-4 font-medium">Label</th>
-              <th className="px-6 py-4 font-medium">Key</th>
-              <th className="px-6 py-4 font-medium">Provider</th>
-              <th className="px-6 py-4 font-medium">Direct Portal URL</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium">Last Used</th>
-              <th className="px-6 py-4 font-medium">Actions</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Label</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Key</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Provider</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Status</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black border-r-4">Last Used</th>
+              <th className="px-6 py-5 font-black uppercase tracking-widest text-xs border-b-4 border-black">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50">
+          <tbody className="divide-y-4 divide-black">
             {currentKeys.length > 0 ? currentKeys.map((row) => (
-              <tr key={row.id} className="hover:bg-slate-800/20 transition-colors group">
-                <td className="px-6 py-4 text-slate-300 font-medium whitespace-nowrap">{row.label}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-slate-400 tracking-widest text-xs">
-                      {row.keyValue.includes('••••') ? row.keyValue : row.keyValue.replace(/.(?=.{4})/g, '•')}
+              <tr key={row.id} className="hover:bg-[#00E5FF]/10 transition-colors group">
+                <td className="px-6 py-5 text-black font-black uppercase tracking-wide border-r-4 border-black">{row.label}</td>
+                <td className="px-6 py-5 border-r-4 border-black bg-gray-50">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="font-mono text-black font-bold tracking-widest text-sm bg-white px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      {row.mask}
                     </span>
-                    <KeyRound className="w-3.5 h-3.5 text-[#CFB53B]/70" />
+                    <KeyRound className="w-5 h-5 text-black flex-shrink-0" />
                   </div>
                 </td>
-                <td className="px-6 py-4 text-slate-400">{row.provider}</td>
-                <td className="px-6 py-4">
-                  <a href={row.portalUrl} target="_blank" rel="noreferrer" className="text-[#CFB53B] hover:text-[#E0C64C] underline decoration-[#CFB53B]/30 hover:decoration-[#E0C64C] text-xs">
-                    {row.portalUrl}
-                  </a>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-xs ${row.status === 'Revoked' ? 'bg-[#DC143C]/20 text-[#DC143C]' : 'text-slate-400'}`}>
+                <td className="px-6 py-5 text-black font-bold uppercase tracking-wider border-r-4 border-black">{row.provider}</td>
+                <td className="px-6 py-5 border-r-4 border-black">
+                  <span className={`inline-block px-3 py-1.5 border-2 border-black text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${row.status === 'Revoked' ? 'bg-[#FF4B91] text-white' : 'bg-[#00CD74] text-black'}`}>
                     {row.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-slate-400 text-xs">{row.lastUsed}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3 text-slate-500 group-hover:text-slate-300">
-                    <button className="hover:text-[#CFB53B] transition-colors"><PenLine className="w-4 h-4" /></button>
+                <td className="px-6 py-5 text-black font-bold uppercase tracking-wider text-xs border-r-4 border-black">{row.lastUsed}</td>
+                <td className="px-6 py-5">
+                  <div className="flex items-center gap-3 text-black">
+                    <button className="p-2 border-2 border-black bg-white hover:bg-[#FFD200] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
+                      <PenLine className="w-4 h-4" />
+                    </button>
                     <button 
                       onClick={() => onRevoke(row.id)}
-                      className="hover:text-[#DC143C] transition-colors"
+                      className="p-2 border-2 border-black bg-white hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all"
                       title="Revoke Key"
                     >
                       <MoreVertical className="w-4 h-4" />
@@ -121,7 +109,7 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
               </tr>
             )) : (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={6} className="px-6 py-12 text-center text-black font-black uppercase tracking-widest text-lg bg-gray-50">
                   No keys found matching your criteria.
                 </td>
               </tr>
@@ -130,17 +118,19 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({ keys, onRevoke, on
         </table>
       </div>
 
-      <div className="p-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500 bg-[#161C2D]/30">
-        <div className="flex items-center gap-2">
-          <button onClick={() => setCurrentPage(1)} className="px-2 py-1 hover:text-white tracking-widest">|&lt;</button>
-          <button onClick={handlePrev} className="px-2 py-1 hover:text-white tracking-widest">&lt;</button>
-          <span className="font-medium text-slate-400">Page {currentPage} of {totalPages || 1}</span>
-          <button onClick={handleNext} className="px-2 py-1 hover:text-white tracking-widest">&gt;</button>
-          <button onClick={() => setCurrentPage(totalPages || 1)} className="px-2 py-1 hover:text-white tracking-widest">&gt;|</button>
+      <div className="p-5 border-t-4 border-black bg-[#00E5FF] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setCurrentPage(1)} className="px-3 py-1.5 border-2 border-black bg-white font-black hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">|&lt;</button>
+          <button onClick={handlePrev} className="px-3 py-1.5 border-2 border-black bg-white font-black hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">&lt;</button>
+          <span className="font-black text-black uppercase tracking-widest px-4 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button onClick={handleNext} className="px-3 py-1.5 border-2 border-black bg-white font-black hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">&gt;</button>
+          <button onClick={() => setCurrentPage(totalPages || 1)} className="px-3 py-1.5 border-2 border-black bg-white font-black hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">&gt;|</button>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[#CFB53B]">{filteredKeys.length}</span>
-          <span>Total Keys</span>
+        <div className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <span className="font-black text-[#FF4B91]">{filteredKeys.length}</span>
+          <span className="font-black uppercase tracking-widest text-sm text-black">Total Keys</span>
         </div>
       </div>
     </section>
