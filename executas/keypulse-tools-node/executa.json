@@ -1,0 +1,9 @@
+{
+  "slug": "keypulse-tools-node",
+  "name": "KeyPulse LLM Tool",
+  "version": "1.0.0",
+  "executa_type": "tool",
+  "tool_id": "keypulse-llm",
+  "type": "node",
+  "enabled": true
+}

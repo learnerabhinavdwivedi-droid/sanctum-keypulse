@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "next build",
+    "build": "next build && node -e \"const fs=require('fs'); fs.rmSync('bundle',{recursive:true,force:true}); fs.renameSync('out','bundle');\"",
     "start": "next start",
     "lint": "eslint",
-    "harness": "anna-app dev"
+    "harness": "anna-app dev --no-llm"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",

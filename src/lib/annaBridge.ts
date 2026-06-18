@@ -276,7 +276,7 @@ export const annaBridge = {
       const rt = await getRuntime();
       if (rt) {
         const { result } = await rt.tools.invoke({
-          tool_id: toolId,
+          tool_id: toolId === 'keypulse-llm' ? 'keypulse-llm' : toolId,
           method,
           args,
           timeoutMs: 30_000,

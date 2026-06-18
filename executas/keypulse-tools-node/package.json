@@ -1,0 +1,9 @@
+{
+  "name": "keypulse-tools-node",
+  "version": "1.0.0",
+  "description": "Anna Executa for Sanctum KeyPulse",
+  "main": "keypulse-tools.js",
+  "bin": {
+    "keypulse-llm": "./keypulse-tools.js"
+  }
+}

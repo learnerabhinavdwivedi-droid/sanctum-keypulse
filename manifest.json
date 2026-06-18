@@ -1,7 +1,7 @@
 {
   "schema": 2,
   "required_executas": [
-    { "tool_id": "keypulse_llm" }
+    { "tool_id": "keypulse-llm" }
   ],
   "optional_executas": [],
   "permissions": [

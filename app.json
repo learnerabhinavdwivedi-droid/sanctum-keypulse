@@ -1,0 +1,13 @@
+{
+  "slug": "sanctum-keypulse",
+  "name": "Sanctum KeyPulse",
+  "version": "1.0.0",
+  "tagline": "AI-powered API key vault & security oracle.",
+  "category": "developer-tools",
+  "pricing_model": "free",
+  "bundled_executas": {
+    "keypulse-llm": {
+      "path": "./executas/keypulse-tools-node"
+    }
+  }
+}

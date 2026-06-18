@@ -1,0 +1,12 @@
+{
+  "name": "KeyPulse Security Hub",
+  "appId": "keypulse-security-hub",
+  "developer": "learnerabhinavdwivedi@gmail.com",
+  "permissions": {
+    "storage": "visibility",
+    "llm": "visibility",
+    "agent": "visibility",
+    "tools": "visibility",
+    "chat": "visibility"
+  }
+}
