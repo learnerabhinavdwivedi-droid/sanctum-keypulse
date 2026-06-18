@@ -1,5 +1,7 @@
 {
   "schema": 2,
+  "name": "sanctum-keypulse",
+  "version": "1.0.0",
   "required_executas": [
     { "tool_id": "keypulse_llm" }
   ],
