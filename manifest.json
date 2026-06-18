@@ -30,7 +30,11 @@
     "host_api": {
       "storage": ["read", "write"],
       "tools": ["required:*"],
-      "chat": ["append_artifact"]
+      "chat": ["append_artifact"],
+      "agent": {
+        "session": { "auto": true },
+        "tools": ["required:*"]
+      }
     }
   },
   "dev": {
