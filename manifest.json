@@ -13,7 +13,10 @@
   "system_prompt_addendum": "You are the Sanctum KeyPulse Security Orchestrator. When the user asks about their API keys, security posture, or vault health, summon the KeyPulse workspace via open_app_view. Always run threat analysis before reporting health scores.",
   "tags": ["security", "api-management", "developer-tools", "vault"],
   "ui": {
-    "entry": "index.html",
+    "bundle": {
+      "format": "static-spa",
+      "entry": "index.html"
+    },
     "views": [
       {
         "name": "main",
@@ -25,13 +28,9 @@
       }
     ],
     "host_api": {
-      "storage": ["get", "set", "delete", "list"],
+      "storage": ["read", "write"],
       "tools": ["required:*"],
-      "chat": ["append_artifact"],
-      "agent": {
-        "session": { "auto": true, "fixed": false },
-        "tools": ["required:*"]
-      }
+      "chat": ["append_artifact"]
     }
   },
   "dev": {
