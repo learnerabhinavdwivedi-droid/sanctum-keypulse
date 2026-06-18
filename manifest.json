@@ -1,7 +1,7 @@
 {
   "schema": 2,
   "required_executas": [
-    { "tool_id": "keypulse-llm" }
+    { "tool_id": "tool-learnerabhinavdwivedi-keypulse-tools-node-6z6kg573" }
   ],
   "optional_executas": [],
   "permissions": [

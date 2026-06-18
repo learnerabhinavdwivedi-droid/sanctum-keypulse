@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { ShieldCheck, Cpu, Key, ShieldAlert, Zap, Book, Activity, ArrowRight } from "lucide-react";
 
 export default function LearnMorePage() {
@@ -25,15 +24,15 @@ export default function LearnMorePage() {
             <ShieldCheck className="w-6 h-6 text-black" />
           </div>
           <div className="flex flex-col leading-none">
-            <Link href="/" className="font-black text-xl tracking-tighter uppercase text-black">Sanctum</Link>
+            <a href="./index.html" className="font-black text-xl tracking-tighter uppercase text-black">Sanctum</a>
             <span className="font-bold text-[10px] tracking-widest uppercase text-black">KeyPulse</span>
           </div>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/#features" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00E5FF] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Features</Link>
-          <Link href="/#compare" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Comparison</Link>
-          <Link href="/" className="px-6 py-2 bg-black text-white border-4 border-black font-black uppercase text-xs tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Back to Login</Link>
+          <a href="./index.html#features" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00E5FF] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Features</a>
+          <a href="./index.html#compare" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Comparison</a>
+          <a href="./index.html" className="px-6 py-2 bg-black text-white border-4 border-black font-black uppercase text-xs tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Back to Login</a>
         </div>
       </nav>
 
