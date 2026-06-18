@@ -9,7 +9,7 @@ import { SanctumAssistant } from '../../components/SanctumAssistant';
 import { DashboardLayout } from '../../components/DashboardLayout';
 
 export default function KeyVaultPage() {
-  const { keys, addKey, revokeKey, deleteKey } = useKeyManager();
+  const { keys, addKey, revokeKey, deleteKey, validationResults, isValidating, validateKeyById } = useKeyManager();
 
   const handleCreateKey = () => {
     const label = window.prompt('Enter Key Label (e.g. STRIPE_PROD):');
@@ -74,7 +74,10 @@ export default function KeyVaultPage() {
                 keys={keys} 
                 onRevoke={revokeKey} 
                 onDelete={deleteKey}
-                onCreateSingleKey={handleCreateKey} 
+                onCreateSingleKey={handleCreateKey}
+                validationResults={validationResults}
+                isValidating={isValidating}
+                onValidate={validateKeyById}
               />
             </div>
             <div className="lg:col-span-1 flex-shrink-0">

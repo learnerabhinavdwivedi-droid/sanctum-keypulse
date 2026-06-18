@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { annaBridge } from '../lib/annaBridge';
+import { validateKey as validateKeyApi, ValidationResult } from '../lib/keyValidator';
+export type { ValidationResult };
 
 export interface KeyRecord {
   id: string;
@@ -120,5 +122,23 @@ export const useKeyManager = () => {
     });
   }, []);
 
-  return { keys, addKey, appendKey, deleteKey, revokeKey, isLoading, refreshKeys: fetchKeys };
+  // ── Validation state ────────────────────────────────────────────────────
+  const [validationResults, setValidationResults] = useState<Record<string, ValidationResult>>({});
+  const [isValidating, setIsValidating] = useState<Record<string, boolean>>({});
+
+  const validateKeyById = useCallback(async (id: string) => {
+    const key = keys.find(k => k.id === id);
+    if (!key?.rawKey) return;
+    setIsValidating(prev => ({ ...prev, [id]: true }));
+    try {
+      const result = await validateKeyApi(key.rawKey);
+      setValidationResults(prev => ({ ...prev, [id]: result }));
+    } catch {
+      // Validation error — leave state unchanged
+    } finally {
+      setIsValidating(prev => ({ ...prev, [id]: false }));
+    }
+  }, [keys]);
+
+  return { keys, addKey, appendKey, deleteKey, revokeKey, isLoading, refreshKeys: fetchKeys, validationResults, isValidating, validateKeyById };
 };

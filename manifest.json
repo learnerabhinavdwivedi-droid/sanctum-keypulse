@@ -15,7 +15,34 @@
   "ui": {
     "bundle": {
       "format": "static-spa",
-      "entry": "index.html"
+      "entry": "index.html",
+      "external_origins": [
+        "https://api.github.com",
+        "https://api.openai.com",
+        "https://api.anthropic.com",
+        "https://api.cohere.ai",
+        "https://api.replicate.com",
+        "https://api.groq.com",
+        "https://generativelanguage.googleapis.com",
+        "https://api.mistral.ai",
+        "https://api.stripe.com",
+        "https://api.lemonsqueezy.com",
+        "https://api.resend.com",
+        "https://api.sendgrid.com",
+        "https://api.postmarkapp.com",
+        "https://api.clerk.com",
+        "https://api.supabase.com",
+        "https://api.planetscale.com",
+        "https://api.xata.io",
+        "https://api.vercel.com",
+        "https://api.netlify.com",
+        "https://api.render.com",
+        "https://gitlab.com",
+        "https://api.cloudflare.com",
+        "https://api.digitalocean.com",
+        "https://slack.com",
+        "https://huggingface.co"
+      ]
     },
     "views": [
       {
