@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 import { ShieldCheck, Play, ArrowRight, Activity, GitBranch, Key, Database, Bot, Zap, CheckCircle2, Lock, Satellite, Rocket, Telescope, Orbit, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { annaBridge } from '../lib/annaBridge';
@@ -82,9 +83,9 @@ export default function LandingPage() {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <a href="#features" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00E5FF] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Features</a>
-          <a href="#compare" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Comparison</a>
-          <a href="./learn-more.html" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00CD74] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Learn More</a>
+          <Link href="#features" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00E5FF] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Features</Link>
+          <Link href="#compare" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#FF4B91] hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Comparison</Link>
+          <Link href="/learn-more" className="px-5 py-2 bg-white border-4 border-black font-black uppercase text-xs tracking-widest hover:bg-[#00CD74] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">Learn More</Link>
         </div>
       </motion.nav>
 
@@ -118,9 +119,9 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={fadeUpSpring} className="flex flex-wrap items-center gap-4 mb-12">
-              <a href="./login.html" className="px-8 py-4 bg-[#00CD74] text-black border-4 border-black font-black uppercase tracking-widest text-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2">
+              <Link href="/login" className="px-8 py-4 bg-[#00CD74] text-black border-4 border-black font-black uppercase tracking-widest text-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2">
                 LOGIN TO WORKSPACE <ArrowRight className="w-5 h-5" />
-              </a>
+              </Link>
             </motion.div>
 
             {/* Bottom pills */}
@@ -590,12 +591,12 @@ export default function LandingPage() {
               </p>
               
               <div className="flex flex-wrap gap-4">
-                <a href="./login.html" className="px-6 py-3 bg-white text-black border-4 border-black font-black uppercase text-xs tracking-widest rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+                <Link href="/login" className="px-6 py-3 bg-white text-black border-4 border-black font-black uppercase text-xs tracking-widest rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                   INITIALIZE SESSION
-                </a>
-                <a href="./osint-scanner.html" className="px-6 py-3 bg-[#FFD200] text-black border-4 border-black font-black uppercase text-xs tracking-widest rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+                </Link>
+                <Link href="/osint-scanner" className="px-6 py-3 bg-[#FFD200] text-black border-4 border-black font-black uppercase text-xs tracking-widest rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                   EXPLORE THE FLOW
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -643,12 +644,12 @@ export default function LandingPage() {
 
           <div className="flex flex-col gap-4">
             <div className="flex gap-4 justify-end">
-              <a href="#features" className="px-5 py-2 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-gray-200 transition-colors border-2 border-black">FEATURES</a>
-              <a href="#compare" className="px-5 py-2 bg-[#FFD200] text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-yellow-400 transition-colors border-2 border-black">COMPARISON</a>
+              <Link href="#features" className="px-5 py-2 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-gray-200 transition-colors border-2 border-black">FEATURES</Link>
+              <Link href="#compare" className="px-5 py-2 bg-[#FFD200] text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-yellow-400 transition-colors border-2 border-black">COMPARISON</Link>
             </div>
             <div className="flex gap-4 justify-end">
-              <a href="./learn-more.html" className="px-5 py-2 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-gray-200 transition-colors border-2 border-black">DOCUMENTATION</a>
-              <a href="./login.html" className="px-5 py-2 bg-[#FFD200] text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-yellow-400 transition-colors border-2 border-black">ENTER VAULT</a>
+              <Link href="/learn-more" className="px-5 py-2 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-gray-200 transition-colors border-2 border-black">DOCUMENTATION</Link>
+              <Link href="/login" className="px-5 py-2 bg-[#FFD200] text-black font-black uppercase text-[10px] tracking-widest rounded-full hover:bg-yellow-400 transition-colors border-2 border-black">ENTER VAULT</Link>
             </div>
           </div>
           
@@ -656,7 +657,7 @@ export default function LandingPage() {
         
         <div className="flex flex-col md:flex-row justify-between items-center px-4 mt-6 gap-4">
           <div className="flex gap-4 text-[10px] font-black uppercase text-gray-500 tracking-widest">
-            <a href="./index.html">SCAN, AUDIT, SIMULATE, REVOKE.</a>
+            <Link href="/">SCAN, AUDIT, SIMULATE, REVOKE.</Link>
           </div>
           <div className="text-[10px] font-black uppercase text-gray-500 tracking-widest border border-gray-300 px-3 py-1 rounded-full">
             THANK YOU FOR SECURING YOUR CREDENTIALS.

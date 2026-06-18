@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useKeyManager } from '../hooks/useKeyManager';
 import { annaBridge } from '../lib/annaBridge';
@@ -74,37 +75,37 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-4 overflow-y-auto custom-scrollbar">
-          <a href="./key-vault.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/key-vault') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          <Link href="/key-vault" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/key-vault') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <LayoutDashboard className="w-6 h-6" />
             <span className="text-sm">Dashboard</span>
-          </a>
-          <a href="./api-fetcher.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/api-fetcher') ? 'bg-[#00E5FF] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          </Link>
+          <Link href="/api-fetcher" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/api-fetcher') ? 'bg-[#00E5FF] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <KeyRound className="w-6 h-6" />
             <span className="text-sm">API Fetcher</span>
-          </a>
-          <a href="./osint-scanner.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/osint-scanner') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          </Link>
+          <Link href="/osint-scanner" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/osint-scanner') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <ShieldCheck className="w-6 h-6" />
             <span className="text-sm">OSINT Scanner</span>
-          </a>
-          <a href="./about-keys.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/about-keys') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          </Link>
+          <Link href="/about-keys" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/about-keys') ? 'bg-[#00CD74] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <BookOpen className="w-6 h-6" />
             <span className="text-sm">Directory</span>
-          </a>
-          <a href="./diagnostics.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/diagnostics') ? 'bg-[#FF4B91] text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          </Link>
+          <Link href="/diagnostics" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/diagnostics') ? 'bg-[#FF4B91] text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <ActivitySquare className="w-6 h-6" />
             <span className="text-sm">Diagnostics</span>
-          </a>
-          <a href="./reports.html" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/reports') ? 'bg-[#B624FF] text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          </Link>
+          <Link href="/reports" className={`flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/reports') ? 'bg-[#B624FF] text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <FileText className="w-6 h-6" />
             <span className="text-sm">Reports</span>
-          </a>
+          </Link>
         </nav>
 
         <div className="p-4 border-t-8 border-black bg-gray-100">
-          <a href="./settings.html" className={`w-full flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/settings') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-200 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
+          <Link href="/settings" className={`w-full flex items-center gap-4 px-4 py-4 font-black uppercase tracking-widest border-4 border-black transition-all ${isActive('/settings') ? 'bg-[#FFD200] shadow-[4px_4px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1' : 'bg-white hover:bg-gray-200 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}`}>
             <Settings className="w-6 h-6 text-black" />
             <span className="text-sm text-black">Settings</span>
-          </a>
+          </Link>
         </div>
       </aside>
 
@@ -172,10 +173,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
             <div className="w-1 h-12 bg-black mx-2"></div>
             
-            <a href="./docs.html" className="flex items-center gap-2 px-6 py-3 bg-white border-4 border-black text-sm font-black uppercase tracking-widest hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all">
+            <Link href="/docs" className="flex items-center gap-2 px-6 py-3 bg-white border-4 border-black text-sm font-black uppercase tracking-widest hover:bg-gray-100 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all">
               <HelpCircle className="w-5 h-5" />
               Help
-            </a>
+            </Link>
             
             <button onClick={() => setShowUpgradeBanner(b => !b)} className="px-8 py-3 bg-[#00E5FF] text-black border-4 border-black text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
               Upgrade System

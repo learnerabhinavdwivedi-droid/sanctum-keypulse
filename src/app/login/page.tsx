@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, ArrowRight, Loader2, Key, GitBranch } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { annaBridge } from "../../lib/annaBridge";
 
 export default function LoginPage() {
@@ -16,7 +17,7 @@ export default function LoginPage() {
     const checkSession = async () => {
       const identity = await annaBridge.storage.get('anna_identity');
       if (identity) {
-        window.location.href = "./key-vault.html";
+        router.push("/key-vault");
       }
     };
     checkSession();
@@ -30,7 +31,7 @@ export default function LoginPage() {
     
     await new Promise(r => setTimeout(r, 1200)); // Simulate UI delay
     await annaBridge.storage.set('anna_identity', finalEmail);
-    window.location.href = "./key-vault.html";
+    router.push("/key-vault");
   };
 
   return (
@@ -38,14 +39,14 @@ export default function LoginPage() {
       
       {/* Top Nav (Minimal) */}
       <nav className="w-full px-6 py-4 flex items-center justify-between z-50">
-        <a href="./index.html" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#FFD200] border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
             <ShieldCheck className="w-6 h-6 text-black" />
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-black text-xl tracking-tighter uppercase text-black">Sanctum</span>
           </div>
-        </a>
+        </Link>
       </nav>
 
       {/* Main Login Area */}

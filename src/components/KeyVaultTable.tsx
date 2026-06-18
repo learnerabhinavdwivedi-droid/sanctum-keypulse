@@ -340,7 +340,7 @@ export const KeyVaultTable: React.FC<KeyVaultTableProps> = ({
                         <span>{row.provider}</span>
                         {row.directPortalUrl && (
                           <a href={row.directPortalUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] bg-black text-white px-2 py-1 max-w-max border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors">
-                            <aIcon className="w-3 h-3" />
+                            <LinkIcon className="w-3 h-3" />
                             PORTAL
                           </a>
                         )}
