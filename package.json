@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "harness": "anna-app dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",
@@ -23,6 +24,7 @@
     "svix": "^1.95.2"
   },
   "devDependencies": {
+    "@anna-ai/cli": "^0.1.30",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
