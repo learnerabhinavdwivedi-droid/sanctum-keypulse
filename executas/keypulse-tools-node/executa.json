@@ -1,9 +1,10 @@
 {
-  "slug": "keypulse-tools-node",
-  "name": "KeyPulse LLM Tool",
-  "version": "1.0.0",
-  "executa_type": "tool",
-  "tool_id": "keypulse-llm",
-  "type": "node",
-  "enabled": true
+  "name": "keypulse-tools",
+  "version": "1.1.2",
+  "description": "Your Executa description here",
+  "binary_urls": {
+    "linux-x86_64": "https://github.com/learnerabhinavdwivedi-droid/sanctum-keypulse/releases/download/v1.1.2/keypulse-linux-x64.tar.gz",
+    "darwin-arm64": "https://github.com/learnerabhinavdwivedi-droid/sanctum-keypulse/releases/download/v1.1.2/keypulse-macos-arm64.tar.gz",
+    "windows-x86_64": "https://github.com/learnerabhinavdwivedi-droid/sanctum-keypulse/releases/download/v1.1.2/keypulse-windows-x64.zip"
+  }
 }
