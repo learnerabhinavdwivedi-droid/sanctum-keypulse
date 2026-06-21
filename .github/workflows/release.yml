@@ -17,32 +17,20 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build Web Frontend Assets
+      - name: Install and Compile Executa Binaries
         run: |
+          cd executas/keypulse-tools-node
           npm install
-          npm run build --if-present
+          npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
 
-      - name: Install Tooling Globally
-        run: npm install -g pkg
-
-      - name: Install Folder Dependencies
-        run: |
-          cd executas/keypulse-tools-node
-          npm install --omit=dev
-
-      - name: Compile Executable Binary
-        run: |
-          cd executas/keypulse-tools-node
-          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
-
-      - name: Archive Target Distributions
+      - name: Compress Outputs
         run: |
           cd executas/keypulse-tools-node
           tar -czf ../../keypulse-linux-x64.tar.gz *linux*
           tar -czf ../../keypulse-macos-arm64.tar.gz *macos*
           zip -j ../../keypulse-windows-x64.zip *win*
 
-      - name: Upload Assets to Release Page
+      - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
