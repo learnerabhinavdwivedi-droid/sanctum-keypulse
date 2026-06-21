@@ -9,18 +9,30 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: 18
 
       - name: Build and Package
         run: |
           cd executas/keypulse-tools-node
           npm install --no-audit
+          
+          # Compile the binaries
           npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist
+          
+          # Navigate into the dist folder to compress them
+          cd dist
+          tar -czf keypulse-linux-x64.tar.gz *linux*
+          tar -czf keypulse-macos-arm64.tar.gz *macos*
+          zip -j keypulse-windows-x64.zip *win*.exe
+          
+          # Clean up the raw binaries so only the compressed files remain
+          rm *linux* *macos* *win*.exe
           
       - name: Release
         uses: softprops/action-gh-release@v2
