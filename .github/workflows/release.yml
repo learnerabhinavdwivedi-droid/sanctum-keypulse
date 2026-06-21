@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+# 1. EXPLICITLY GRANT WRITE PERMISSIONS FOR RELEASES
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,8 +35,8 @@ jobs:
           tar -czf keypulse-macos-arm64.tar.gz *macos*
           zip -j keypulse-windows-x64.zip *win*.exe
           
-          # Clean up the raw binaries so only the compressed files remain
-          rm *linux* *macos* *win*.exe
+          # 2. SAFELY clean up raw binaries (-f prevents crashes if a file isn't found)
+          rm -f *linux* *macos* *win*.exe
           
       - name: Release
         uses: softprops/action-gh-release@v2
