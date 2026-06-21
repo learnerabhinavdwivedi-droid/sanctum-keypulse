@@ -9,38 +9,22 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '24'
 
-      - name: Bulletproof Install
-        run: |
-          npm install -g pkg
-          cd executas/keypulse-tools-node
-          npm install --legacy-peer-deps --no-audit --no-fund
-
-      - name: Compile Binaries
+      - name: Build and Package
         run: |
           cd executas/keypulse-tools-node
-          pkg package.json --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
-
-      - name: Archive Distributions
-        run: |
-          cd executas/keypulse-tools-node
-          tar -czf ../../keypulse-linux-x64.tar.gz *linux*
-          tar -czf ../../keypulse-macos-arm64.tar.gz *macos*
-          zip -j ../../keypulse-windows-x64.zip *win*
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+          npm install --no-audit
+          npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
         with:
-          files: |
-            keypulse-linux-x64.tar.gz
-            keypulse-macos-arm64.tar.gz
-            keypulse-windows-x64.zip
+          files: executas/keypulse-tools-node/dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
