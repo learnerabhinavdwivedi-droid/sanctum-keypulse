@@ -33,14 +33,14 @@ jobs:
       - name: Compile Executable Binary
         run: |
           cd executas/keypulse-tools-node
-          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist
+          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
 
       - name: Archive Target Distributions
         run: |
-          cd executas/keypulse-tools-node/dist
-          tar -czf ../../../keypulse-linux-x64.tar.gz .
-          tar -czf ../../../keypulse-macos-arm64.tar.gz .
-          zip -j ../../../keypulse-windows-x64.zip *
+          cd executas/keypulse-tools-node
+          tar -czf ../../keypulse-linux-x64.tar.gz *linux*
+          tar -czf ../../keypulse-macos-arm64.tar.gz *macos*
+          zip -j ../../keypulse-windows-x64.zip *win*
 
       - name: Upload Assets to Release Page
         uses: softprops/action-gh-release@v1
