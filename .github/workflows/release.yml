@@ -16,26 +16,26 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
 
-      - name: Install and Build Frontend Assets
+      - name: Handle Root Build
         run: |
           npm install
           npm run build --if-present
 
-      - name: Package Executa Binaries
+      - name: Build and Package Executa Binaries
+        uses: subgraph/pkg-action@v1
+        with:
+          working-directory: 'executas/keypulse-tools-node'
+          options: '--targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/'
+
+      - name: Archive Target Distributions
         run: |
-          # Navigate into your binary folder
-          cd executas/keypulse-tools-node
-          npm install
+          cd executas/keypulse-tools-node/dist
           
-          # Compile cross-platform binaries using pkg
-          npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/
-          
-          # Compress into the required formats
-          tar -czf ../../keypulse-linux-x64.tar.gz -C dist/ .
-          tar -czf ../../keypulse-macos-arm64.tar.gz -C dist/ .
-          zip -j ../../keypulse-windows-x64.zip dist/*win* || zip -j ../../keypulse-windows-x64.zip dist/*
+          # Zip the specific output variants
+          tar -czf ../../../keypulse-linux-x64.tar.gz *linux*
+          tar -czf ../../../keypulse-macos-arm64.tar.gz *macos*
+          zip -j ../../../keypulse-windows-x64.zip *win*.exe || zip -j ../../../keypulse-windows-x64.zip *
 
       - name: Create Cloud Release Asset
         uses: softprops/action-gh-release@v1
