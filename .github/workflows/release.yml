@@ -22,24 +22,25 @@ jobs:
           npm install
           npm run build --if-present
 
-      - name: Compile Cross-Platform Binaries Globally
-        run: |
-          # Install pkg globally so it works anywhere
-          npm install -g pkg
-          
-          # Move to the binary folder and build
-          cd executas/keypulse-tools-node
-          npm install --omit=dev || npm install
-          
-          # Compile explicitly targeting standard outputs
-          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/
+      - name: Install Tooling Globally
+        run: npm install -g pkg
 
-      - name: Create Distribution Archives
+      - name: Install Folder Dependencies
+        run: |
+          cd executas/keypulse-tools-node
+          npm install --omit=dev
+
+      - name: Compile Executable Binary
+        run: |
+          cd executas/keypulse-tools-node
+          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist
+
+      - name: Archive Target Distributions
         run: |
           cd executas/keypulse-tools-node/dist
-          tar -czf ../../../keypulse-linux-x64.tar.gz *linux* || tar -czf ../../../keypulse-linux-x64.tar.gz .
-          tar -czf ../../../keypulse-macos-arm64.tar.gz *macos* || tar -czf ../../../keypulse-macos-arm64.tar.gz .
-          zip -j ../../../keypulse-windows-x64.zip *win* || zip -j ../../../keypulse-windows-x64.zip .
+          tar -czf ../../../keypulse-linux-x64.tar.gz .
+          tar -czf ../../../keypulse-macos-arm64.tar.gz .
+          zip -j ../../../keypulse-windows-x64.zip *
 
       - name: Upload Assets to Release Page
         uses: softprops/action-gh-release@v1
