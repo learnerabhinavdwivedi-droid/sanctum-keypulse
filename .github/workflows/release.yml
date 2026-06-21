@@ -1,0 +1,48 @@
+name: Build and Release Sanctum KeyPulse
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install and Build Frontend Assets
+        run: |
+          npm install
+          npm run build --if-present
+
+      - name: Package Executa Binaries
+        run: |
+          # Navigate into your binary folder
+          cd executas/keypulse-tools-node
+          npm install
+          
+          # Compile cross-platform binaries using pkg
+          npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/
+          
+          # Compress into the required formats
+          tar -czf ../../keypulse-linux-x64.tar.gz -C dist/ .
+          tar -czf ../../keypulse-macos-arm64.tar.gz -C dist/ .
+          zip -j ../../keypulse-windows-x64.zip dist/*win* || zip -j ../../keypulse-windows-x64.zip dist/*
+
+      - name: Create Cloud Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            keypulse-linux-x64.tar.gz
+            keypulse-macos-arm64.tar.gz
+            keypulse-windows-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
