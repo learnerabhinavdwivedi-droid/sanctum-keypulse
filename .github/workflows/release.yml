@@ -17,27 +17,31 @@ jobs:
         with:
           node-version: 18
 
-      - name: Handle Root Build
+      - name: Build Web Frontend Assets
         run: |
           npm install
           npm run build --if-present
 
-      - name: Build and Package Executa Binaries
-        uses: subgraph/pkg-action@v1
-        with:
-          working-directory: 'executas/keypulse-tools-node'
-          options: '--targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/'
+      - name: Compile Cross-Platform Binaries Globally
+        run: |
+          # Install pkg globally so it works anywhere
+          npm install -g pkg
+          
+          # Move to the binary folder and build
+          cd executas/keypulse-tools-node
+          npm install --omit=dev || npm install
+          
+          # Compile explicitly targeting standard outputs
+          pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64 --out-path dist/
 
-      - name: Archive Target Distributions
+      - name: Create Distribution Archives
         run: |
           cd executas/keypulse-tools-node/dist
-          
-          # Zip the specific output variants
-          tar -czf ../../../keypulse-linux-x64.tar.gz *linux*
-          tar -czf ../../../keypulse-macos-arm64.tar.gz *macos*
-          zip -j ../../../keypulse-windows-x64.zip *win*.exe || zip -j ../../../keypulse-windows-x64.zip *
+          tar -czf ../../../keypulse-linux-x64.tar.gz *linux* || tar -czf ../../../keypulse-linux-x64.tar.gz .
+          tar -czf ../../../keypulse-macos-arm64.tar.gz *macos* || tar -czf ../../../keypulse-macos-arm64.tar.gz .
+          zip -j ../../../keypulse-windows-x64.zip *win* || zip -j ../../../keypulse-windows-x64.zip .
 
-      - name: Create Cloud Release Asset
+      - name: Upload Assets to Release Page
         uses: softprops/action-gh-release@v1
         with:
           files: |
