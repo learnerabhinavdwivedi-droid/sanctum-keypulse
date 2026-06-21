@@ -17,20 +17,25 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install and Compile Executa Binaries
+      - name: Bulletproof Install
+        run: |
+          npm install -g pkg
+          cd executas/keypulse-tools-node
+          npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Compile Binaries
         run: |
           cd executas/keypulse-tools-node
-          npm install
-          npx pkg . --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
+          pkg package.json --targets node18-linux-x64,node18-macos-arm64,node18-win-x64
 
-      - name: Compress Outputs
+      - name: Archive Distributions
         run: |
           cd executas/keypulse-tools-node
           tar -czf ../../keypulse-linux-x64.tar.gz *linux*
           tar -czf ../../keypulse-macos-arm64.tar.gz *macos*
           zip -j ../../keypulse-windows-x64.zip *win*
 
-      - name: Upload to Release
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
